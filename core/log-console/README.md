@@ -1,5 +1,3 @@
 # Log Console
 
 ## Usage
-
-Something

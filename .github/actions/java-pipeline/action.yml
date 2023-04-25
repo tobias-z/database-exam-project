@@ -86,7 +86,7 @@ runs:
             image="$lower_case_image:$branch_name-$version-snapshot"
           fi
 
-          docker build --tag "$image" .
+          docker build --tag "$image" -f "$file" .
           docker push "$image"
         done
       env:

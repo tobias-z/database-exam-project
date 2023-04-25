@@ -13,6 +13,9 @@ inputs:
     description: If the project uses grpc
     required: true
     default: no
+  docker_username:
+    description: username to docker
+    required: true
   docker_password:
     description: password to docker
     required: true
@@ -78,5 +81,6 @@ runs:
           docker push "$image"
         done
       env:
+        DOCKER_USERNAME: ${{ inputs.docker_username }}
         DOCKER_PASSWORD: ${{ inputs.docker_password }}
         WORKING_DIR: ${{ inputs.working_directory }}

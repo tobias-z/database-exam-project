@@ -26,7 +26,7 @@ runs:
   steps:
     - name: Setup environment
       working-directory: ${{ inputs.working_directory }}
-      if: ${{ inputs.run_docker_compose == "yes" }}
+      if: ${{ inputs.run_docker_compose == 'yes' }}
       shell: bash
       run: |
         docker compose up -d
@@ -42,7 +42,7 @@ runs:
     - name: Install libs
       working-directory: lib
       shell: bash
-      if: ${{ inputs.requires != "" }}
+      if: ${{ inputs.requires != '' }}
       env:
         REQUIRES: ${{ inputs.requires }}
       run: |

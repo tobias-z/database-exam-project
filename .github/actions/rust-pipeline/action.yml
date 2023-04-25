@@ -8,11 +8,11 @@ inputs:
   run_docker_compose:
     description: Whether to run docker composes before building and testing
     required: false
-    default: "no"
+    default: no
   uses_grpc:
     description: If the project uses grpc
     required: true
-    default: "no"
+    default: no
   docker_password:
     description: password to docker
     required: true
@@ -23,7 +23,7 @@ runs:
     # Uncomment if you are using a docker compose to setup your environment
     - name: Setup environment
       working-directory: ${{ inputs.working_directory }}
-      if: ${{ inputs.run_docker_compose == "yes" }}
+      if: ${{ inputs.run_docker_compose == 'yes' }}
       shell: bash
       run: |
         docker compose up -d

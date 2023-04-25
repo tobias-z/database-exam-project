@@ -1,1 +1,3 @@
 # Log Console
+
+## Usage

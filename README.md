@@ -1,2 +1,9 @@
-# database-exam-project
-The database exam project for Group A at CphBusiness
+# Database Exam Project
+
+## Table of Contents
+
+- [Introduction](#introduction)
+
+## Introduction
+
+Something

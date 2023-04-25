@@ -1,0 +1,17 @@
+syntax= "proto3";
+
+package dk.groupa.proto;
+
+option java_multiple_files = true;
+
+service PingService {
+  rpc ping(PingRequest) returns (PingResponse);
+}
+
+message PingRequest {
+  string message = 1;
+}
+
+message PingResponse {
+  string message = 1;
+}

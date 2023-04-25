@@ -1,0 +1,35 @@
+name: Setup Rust
+description: Action used to setup a rust environment
+
+inputs:
+  grpc:
+    description: If the project uses grpc
+    required: true
+    default: no
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+    - name: Install rust stable
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+        override: true
+        components: rustfmt, clippy
+
+    - uses: taiki-e/install-action@nextest
+
+    - name: Install protoc
+      if: ${{ inputs.grpc == 'yes' }}
+      shell: bash
+      run: sudo apt install protobuf-compiler libprotobuf-dev -y

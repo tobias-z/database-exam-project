@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - core/log-console/**
+      - .github/workflows/log-console.yml
+  pull_request:
+
+name: Log Console Pipeline
+
+permissions:
+  contents: read
+
+jobs:
+  log-console-pipeline:
+    name: Test and Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Run rust pipeline
+        uses: ./.github/actions/rust-pipeline
+        with:
+          working_directory: core/log-console
+          run_docker_compose: no
+          uses_grpc: yes
+          docker_password: ${{ secrets.DOCKER_PASSWORD }}
+          docker_username: tobiaszimmer

@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package logconsole.proto;
+
+service LoggingStream {
+    rpc log (stream LogRequest) returns (Empty);
+}
+
+message Empty {}
+
+message LogRequest {
+    string message = 1;
+    string date = 2;
+    string containerId = 3;
+    string containerName = 4;
+}

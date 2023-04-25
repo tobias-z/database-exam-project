@@ -33,3 +33,5 @@ runs:
       if: ${{ inputs.grpc == 'yes' }}
       shell: bash
       run: sudo apt install protobuf-compiler libprotobuf-dev -y
+
+    - uses: taiki-e/install-action@ddfbd2cab72fd94842c80ade93f28fe7ee9c71f8 # nextest

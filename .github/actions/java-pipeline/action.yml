@@ -72,6 +72,7 @@ runs:
       working-directory: ${{ inputs.working_directory }}
       if: ${{ github.event_name != 'pull_request' }}
       run: |
+        sudo apt install libxml-xpath-perl -y
         echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
 
         version=$(. $GITHUB_WORKSPACE/hack/xpath-value "pom.xml" 'project/version')

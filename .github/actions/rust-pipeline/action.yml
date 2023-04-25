@@ -64,11 +64,11 @@ runs:
       working-directory: ${{ inputs.working_directory }}
       if: ${{ github.event_name != 'pull_request' }}
       run: |
+        sudo apt install libxml-xpath-perl -y
         echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
 
-        version=$(. $GITHUB_WORKSPACE/hack/xpath-value "pom.xml" 'project/version')
+        version=$(cat Cargo.toml | grep version | head -n 1 | tr 'version = "' " " | xargs | awk '{print tolower($0)}')
         for file in *.Dockerfile; do
-          echo $file
           lower_case_image=$(echo "$file" | sed 's/.Dockerfile//' | awk '{print tolower($0)}')
           branch_name=$(echo $GITHUB_REF | cut -d'/' -f 3 | tr / -)
           if [ "$branch_name" = "main" ]; then

@@ -5,7 +5,7 @@ inputs:
   grpc:
     description: If the project uses grpc
     required: true
-    default: "no"
+    default: no
 
 runs:
   using: composite

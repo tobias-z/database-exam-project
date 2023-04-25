@@ -5,6 +5,7 @@ on:
       - develop
     paths:
       - core/log-console/**
+      - .github/workflows/log-console.yml
   pull_request:
 
 name: Log Console Pipeline

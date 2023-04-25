@@ -1,9 +1,12 @@
 use tonic::{transport::Server, Request, Response, Status, Streaming};
 
-use crate::{proto::{
-    logging_stream_server::{LoggingStream, LoggingStreamServer},
-    Empty, LogRequest,
-}, log_service};
+use crate::{
+    log_service,
+    proto::{
+        logging_stream_server::{LoggingStream, LoggingStreamServer},
+        Empty, LogRequest,
+    },
+};
 
 #[derive(Default)]
 pub struct LoggingStreamImpl {}

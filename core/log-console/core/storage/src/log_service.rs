@@ -44,6 +44,6 @@ fn log_to_u8(log: &str) -> Option<u8> {
         "INFO" => Some(4),
         "DEBUG" => Some(5),
         "TRACE" => Some(6),
-        _ => None
+        _ => None,
     }
 }

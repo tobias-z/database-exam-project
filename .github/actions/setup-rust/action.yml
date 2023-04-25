@@ -30,7 +30,7 @@ runs:
     - uses: taiki-e/install-action@nextest
 
     - name: Install protoc
-      if: ${{ inputs.grpc == "yes" }}
+      if: ${{ inputs.grpc == 'yes' }}
       shell: bash
       run: sudo apt install protobuf-compiler libprotobuf-dev -y
 

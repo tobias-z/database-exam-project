@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - main
+
+name: Deploy docker images
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: deploy to docker up and server
+        env:
+          DOCKER_USERNAME: tobiaszimmer
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          version=$(head "Cargo.toml" | grep version | head -n 1 | tr 'version = "' " " | xargs | awk '{print tolower($0)}')
+          echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+          log_watcherd="$DOCKER_USERNAME/log-watcherd:$version"
+          log_storage_server="$DOCKER_USERNAME/log-storage-server:$version"
+          docker build -f log-watcherd.Dockerfile --tag "$log_watcherd" .
+          docker build -f log-storage-server.Dockerfile --tag "$log_storage_server" .
+          docker push "$log_watcherd"
+          docker push "$log_storage_server"

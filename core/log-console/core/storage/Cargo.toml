@@ -1,0 +1,19 @@
+[package]
+name = "storage"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = {workspace = true}
+env_logger = {workspace = true}
+prost = "0.11.9"
+tokio = {version = "1.27.0", features = ["full"]}
+tonic = "0.9.1"
+mongodb = "2.4.0"
+serde = {version = "1.0.160", feature = ["derive"]}
+anyhow = "1.0.70"
+
+[build-dependencies]
+tonic-build = "0.9.1"

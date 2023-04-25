@@ -1,0 +1,25 @@
+[package]
+name = "fs-watcher"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = {workspace = true}
+env_logger = {workspace = true}
+notify = "5.1.0"
+serde = {version = "1.0.160", features = ["derive"]}
+serde_json = "1.0.96"
+prost = "0.11.9"
+tokio = {version = "1.27.0", features = ["full"]}
+tonic = "0.9.1"
+async-trait = "0.1.68"
+crossbeam-channel = "0.5.8"
+futures = "0.3.28"
+lazy_static = "1.4.0"
+regex = "1.8.1"
+async-recursion = "1.0.4"
+
+[build-dependencies]
+tonic-build = "0.9.1"

@@ -1,0 +1,87 @@
+name: Java Pipeline
+description: Generic pipeline to be run on any project
+
+inputs:
+  working_directory:
+    description: The working directory of the project
+    required: true
+  requires:
+    description: A comma seperated list of libraries this project requires
+    required: false
+    default: ""
+  run_docker_compose:
+    description: Whether to run docker composes before building and testing
+    required: false
+    default: no
+  java_version:
+    description: The java version used
+    required: false
+    default: "17"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup environment
+      working-directory: ${{ inputs.working_directory }}
+      if: ${{ inputs.run_docker_compose == "yes" }}
+      shell: bash
+      run: |
+        docker compose up -d
+        # Ensure that containers are ready
+        # In practice of a real production app, we would prob want to have a list of things that we should wait for, and then check if all those services are healthy
+        sleep 10
+
+    - name: Setup Java
+      uses: ./.github/actions/setup-java
+      with:
+        java_version: ${{ java_version }}
+
+    - name: Install libs
+      working-directory: lib
+      shell: bash
+      if: ${{ inputs.requires != "" }}
+      env:
+        REQUIRES: ${{ inputs.requires }}
+      run: |
+        # any directory in the directory and sub directories that contain a pom.xml, is something that could be a library
+        java_libs=$(find . -type f -name 'pom.xml' | sed -r 's|/[^/]+$||' | uniq | sed 's/.\///')
+        for path_to_lib in $java_libs; do
+          lib_name=$(basename $path_to_lib)
+          # the library name is in the REQUIRES string
+          if [[ "$lib_name" == *"$REQUIRES"* ]]; then
+            cd $path_to_lib
+            # install the library and ignore test compilation and failure
+            mvn install -Dmaven.test.skip=true
+            cd -
+          fi
+        done
+
+    - name: Run tests
+      working-directory: ${{ inputs.working_directory }}
+      shell: bash
+      run: mvn verify
+
+    - name: Deploy to dockerhub
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
+      if: ${{ github.event_name != 'pull_request' }}
+      run: |
+        echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+
+        version=$(. scripts/xpath-value "$WORKING_DIR/pom.xml" 'project/version')
+        for file in *.Dockerfile; do
+          echo $file
+          lower_case_image=$(echo "$file" | sed 's/.Dockerfile//' | awk '{print tolower($0)}')
+          branch_name=$(echo $GITHUB_REF | cut -d'/' -f 3 | tr / -)
+          if [ "$branch_name" = "main" ]; then
+            image="$lower_case_image:$branch_name-$version"
+          else
+            image="$lower_case_image:$branch_name-$version-snapshot"
+          fi
+
+          docker build --tag "$image" .
+          docker push "$image"
+        done
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        WORKING_DIR: ${{ inputs.working_directory }}

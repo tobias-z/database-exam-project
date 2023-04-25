@@ -1,0 +1,62 @@
+name: Rust Pipeline
+description: Generic rust pipeline to be run on any project
+
+inputs:
+  working_directory:
+    description: The working directory of the project
+    required: true
+  run_docker_compose:
+    description: Whether to run docker composes before building and testing
+    required: false
+    default: "no"
+  uses_grpc:
+    description: If the project uses grpc
+    required: true
+    default: "no"
+
+runs:
+  using: composite
+  steps:
+    # Uncomment if you are using a docker compose to setup your environment
+    - name: Setup environment
+      working-directory: ${{ inputs.working_directory }}
+      if: ${{ inputs.run_docker_compose == "yes" }}
+      shell: bash
+      run: |
+        docker compose up -d
+        # Ensure that containers are ready
+        # In practice of a real production app, we would prob want to have a list of things that we should wait for, and then check if all those services are healthy
+        sleep 10
+
+    - name: Setup Rust
+      uses: ./.github/actions/setup-rust
+
+    - name: Run tests
+      working-directory: ${{ inputs.working_directory }}
+      shell: bash
+      run: cargo nextest run --workspace
+
+    - name: Deploy to dockerhub
+      shell: bash
+      working-directory: ${{ inputs.working_directory }}
+      if: ${{ github.event_name != 'pull_request' }}
+      run: |
+        echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+
+        version=$(. scripts/get_xpath_value.sh "$WORKING_DIR/pom.xml" 'project/version')
+        for file in *.Dockerfile; do
+          echo $file
+          lower_case_image=$(echo "$file" | sed 's/.Dockerfile//' | awk '{print tolower($0)}')
+          branch_name=$(echo $GITHUB_REF | cut -d'/' -f 3 | tr / -)
+          if [ "$branch_name" = "main" ]; then
+            image="$lower_case_image:$branch_name-$version"
+          else
+            image="$lower_case_image:$branch_name-$version-snapshot"
+          fi
+
+          docker build --tag "$image" .
+          docker push "$image"
+        done
+      env:
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        WORKING_DIR: ${{ inputs.working_directory }}

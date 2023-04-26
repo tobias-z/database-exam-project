@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Takes a list of docker compose files and formats them so they can be sent to a docker compose command
+# e.g.
+# input: dev.docker-compose.yml,docker-compose.yml
+# output: '-f dev.docker-compose.yml -f docker-compose.yml'
+
+containers=$1
+
+compose_list=""
+
+for compose_file in $(echo $containers | tr "," "\n"); do
+    compose_list="-f $compose_file $compose_list"
+done
+
+echo "$compose_list"

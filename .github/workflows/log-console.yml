@@ -24,7 +24,6 @@ jobs:
         uses: ./.github/actions/rust-pipeline
         with:
           working_directory: core/log-console
-          run_docker_compose: no
           uses_grpc: yes
           docker_password: ${{ secrets.DOCKER_PASSWORD }}
           docker_username: tobiaszimmer

@@ -32,7 +32,7 @@ runs:
       if: ${{ inputs.run_docker_compose == 'yes' }}
       shell: bash
       run: |
-        docker compose up -d
+        docker compose $(sh hack/compose-list $COMPOSE_FILES) up -d
         # Ensure that containers are ready
         # In practice of a real production app, we would prob want to have a list of things that we should wait for, and then check if all those services are healthy
         sleep 10

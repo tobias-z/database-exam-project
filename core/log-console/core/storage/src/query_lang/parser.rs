@@ -1,7 +1,9 @@
 use std::str::FromStr;
 
 use anyhow::anyhow;
-use mongodb::bson::{doc, DateTime, Document};
+use mongodb::bson::Document;
+
+use super::command::{self, QueryCommand};
 
 pub fn parse_query(query: &str) -> anyhow::Result<Vec<Document>> {
     // transform query into a list of commands
@@ -18,20 +20,16 @@ pub fn parse_query(query: &str) -> anyhow::Result<Vec<Document>> {
     Ok(agregation)
 }
 
-trait QueryCommand {
-    fn execute(&self, args: Vec<&str>) -> anyhow::Result<Document>;
-}
-
 // container auth-service | offset 10m | log_level INFO | find "login" | contains "invalid" | sort date DESC | take 30
 // TODO: command to combine commands together to a single pipe
 // TODO: deep extend of documents function
 enum Query {
-    Container(ContainerCommand),
-    Offset(OffsetCommand),
-    LogLevel(LogLevelCommand),
-    Find(FindCommand),
-    Sort(SortCommand),
-    Take(TakeCommand),
+    Container(command::ContainerCommand),
+    Offset(command::OffsetCommand),
+    LogLevel(command::LogLevelCommand),
+    Find(command::FindCommand),
+    Sort(command::SortCommand),
+    Take(command::TakeCommand),
 }
 
 impl Query {
@@ -52,119 +50,24 @@ impl FromStr for Query {
 
     fn from_str(query_command: &str) -> Result<Self, Self::Err> {
         match query_command {
-            "container" | "CONTAINER" => Ok(Query::Container(ContainerCommand)),
-            "offset" | "OFFSET" => Ok(Query::Offset(OffsetCommand)),
-            "log_level" | "LOG_LEVEL" => Ok(Query::LogLevel(LogLevelCommand)),
-            "find" | "FIND" => Ok(Query::Find(FindCommand)),
-            "sort" | "SORT" => Ok(Query::Sort(SortCommand)),
-            "take" | "TAKE" => Ok(Query::Take(TakeCommand)),
+            "container" | "CONTAINER" => Ok(Query::Container(command::ContainerCommand)),
+            "offset" | "OFFSET" => Ok(Query::Offset(command::OffsetCommand)),
+            "log_level" | "LOG_LEVEL" => Ok(Query::LogLevel(command::LogLevelCommand)),
+            "find" | "FIND" => Ok(Query::Find(command::FindCommand)),
+            "sort" | "SORT" => Ok(Query::Sort(command::SortCommand)),
+            "take" | "TAKE" => Ok(Query::Take(command::TakeCommand)),
             _ => Err(anyhow!("Unknown query command {}", query_command)),
         }
     }
 }
 
-pub struct ContainerCommand;
+#[cfg(test)]
+mod test {
+    use super::parse_query;
 
-impl QueryCommand for ContainerCommand {
-    fn execute(&self, args: Vec<&str>) -> anyhow::Result<Document> {
-        let Some(container_name) = args.first() else {
-            return Err(anyhow!("No container name provided in container query command"));
-        };
-        Ok(doc! {
-            "$match": {
-                "container_name": container_name
-            }
-        })
-    }
-}
-
-pub struct OffsetCommand;
-
-impl OffsetCommand {
-    /// This method translates an input of e.g. '10ms' into the DateTime of now minus the provided
-    /// range
-    fn get_datetime_from_range(&self, range: &str) -> anyhow::Result<DateTime> {
-        let now = DateTime::now();
-        // minutes
-        if range.ends_with('m') {
-            let duration = range[0..range.len() - 1].parse::<i64>()?;
-            Ok(DateTime::from_millis(
-                now.timestamp_millis() - (duration * 60_000),
-            ))
-        // milliseconds
-        } else if range.ends_with("ms") {
-            let duration = range[0..range.len() - 2].parse::<i64>()?;
-            Ok(DateTime::from_millis(now.timestamp_millis() - duration))
-        // seconds
-        } else if range.ends_with('s') {
-            let duration = range[0..range.len() - 1].parse::<i64>()?;
-            Ok(DateTime::from_millis(
-                now.timestamp_millis() - (duration * 1000),
-            ))
-        // hours
-        } else if range.ends_with('h') {
-            let duration = range[0..range.len() - 1].parse::<i64>()?;
-            Ok(DateTime::from_millis(
-                now.timestamp_millis() - (duration * 3_600_000),
-            ))
-        // days
-        } else if range.ends_with('d') {
-            let duration = range[0..range.len() - 1].parse::<i64>()?;
-            Ok(DateTime::from_millis(
-                now.timestamp_millis() - (duration * 3_600_000 * 24),
-            ))
-        } else {
-            Err(anyhow!(
-                "Invalid datetime range provided {} to offset query command",
-                range
-            ))
-        }
-    }
-}
-
-impl QueryCommand for OffsetCommand {
-    fn execute(&self, args: Vec<&str>) -> anyhow::Result<Document> {
-        let Some(time_arg) = args.first() else {
-            return Err(anyhow!("No time arg provided in log level query command"));
-        };
-        Ok(doc! {
-            "$match": {
-                "date": {
-                    "$gte": ["$date", self.get_datetime_from_range(time_arg)?]
-                }
-            }
-        })
-    }
-}
-
-pub struct LogLevelCommand;
-
-impl QueryCommand for LogLevelCommand {
-    fn execute(&self, args: Vec<&str>) -> anyhow::Result<Document> {
-        Ok(doc! {})
-    }
-}
-
-pub struct FindCommand;
-
-impl QueryCommand for FindCommand {
-    fn execute(&self, args: Vec<&str>) -> anyhow::Result<Document> {
-        Ok(doc! {})
-    }
-}
-
-pub struct SortCommand;
-
-impl QueryCommand for SortCommand {
-    fn execute(&self, args: Vec<&str>) -> anyhow::Result<Document> {
-        Ok(doc! {})
-    }
-}
-
-pub struct TakeCommand;
-
-impl QueryCommand for TakeCommand {
-    fn execute(&self, args: Vec<&str>) -> anyhow::Result<Document> {
-        Ok(doc! {})
+    #[test]
+    fn can_parse_simple_query() {
+        let cmds = parse_query("container auth-service | offset 10m | log_level INFO | find login | sort date DESC | take 30");
+        assert!(cmds.is_ok());
     }
 }

@@ -5,22 +5,46 @@ use mongodb::bson::Document;
 
 use super::command::{self, QueryCommand};
 
-pub fn parse_query(query: &str) -> anyhow::Result<Vec<Document>> {
-    // transform query into a list of commands
-    // execute each command and push the resulting documents into a vector of agregation objects
-    let mut agregation = vec![];
+/// transforms query into a list of commands
+/// execute each command and push the resulting documents into a vector of agregation objects
+///
+/// example input: container camunda | sort DESC
+/// output (json like):
+/// ```json
+/// [
+///     {
+///         "$match": {
+///             "container_name": "camunda"
+///         }
+///     },
+///     {
+///         "$sort": {
+///             "date": -1
+///         }
+///     }
+/// ]
+/// ```
+///
+/// # Examples
+///
+/// ```
+/// use storage::query_lang::parse;
+/// let result = parse::into_aggregation("container camunda | sort DESC");
+/// assert!(result.is_ok());
+/// ```
+pub fn into_aggregation(query: &str) -> anyhow::Result<Vec<Document>> {
+    let mut aggregation = vec![];
     for pipe in query.split('|') {
         let mut pipe = pipe.split_whitespace();
         let Some(query_command) = pipe.next() else {
             return Err(anyhow!("No query command provided in pipe"));
         };
         let query = Query::from_str(query_command.trim())?;
-        agregation.push(query.execute(pipe.collect())?);
+        aggregation.extend(query.execute(pipe.collect())?);
     }
-    Ok(agregation)
+    Ok(aggregation)
 }
 
-// container auth-service | offset 10m | log_level INFO | find "login" | contains "invalid" | sort date DESC | take 30
 // TODO: command to combine commands together to a single pipe
 // TODO: deep extend of documents function
 enum Query {
@@ -33,7 +57,7 @@ enum Query {
 }
 
 impl Query {
-    fn execute(&self, pipe: Vec<&str>) -> anyhow::Result<Document> {
+    fn execute(&self, pipe: Vec<&str>) -> anyhow::Result<Vec<Document>> {
         match self {
             Query::Container(cmd) => cmd.execute(pipe),
             Query::Offset(cmd) => cmd.execute(pipe),
@@ -63,11 +87,11 @@ impl FromStr for Query {
 
 #[cfg(test)]
 mod test {
-    use super::parse_query;
+    use super::into_aggregation;
 
     #[test]
     fn can_parse_simple_query() {
-        let cmds = parse_query("container auth-service | offset 10m | log_level INFO | find login | sort date DESC | take 30");
+        let cmds = into_aggregation("container auth-service | offset 10m | log_level INFO | find login | sort DESC | take 30");
         assert!(cmds.is_ok());
     }
 }

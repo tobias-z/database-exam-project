@@ -26,7 +26,7 @@ fn is_blacklisted(container_name: &str) -> bool {
         .any(|item| container_name.contains(item))
 }
 
-fn get_log_level(message: &str) -> Option<u8> {
+pub fn get_log_level(message: &str) -> Option<u8> {
     let levels = ["FATAL", "ERROR", "WARN", "INFO", "DEBUG", "TRACE"];
     for level in levels {
         if message.contains(level) {

@@ -23,7 +23,9 @@ trait FsListener: Send {
 }
 
 #[tokio::main]
-pub async fn run() {
+pub async fn main() {
+    dotenv::dotenv().ok();
+    env_logger::init();
     let containers_location = std::env::var("CONTAINERS_LOCATION")
         .expect("env variable CONTAINERS_LOCATION was not found");
     listen(

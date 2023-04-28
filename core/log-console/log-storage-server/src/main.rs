@@ -21,9 +21,7 @@ pub mod proto {
 pub async fn main() -> Result<(), rocket::Error> {
     dotenv::dotenv().ok();
     env_logger::init();
-    tokio::spawn(async move {
-        start_log_gathering_server().await;
-    });
-    rest::run_rest_server().await?;
+    tokio::spawn(start_log_gathering_server());
+    rest::start_rest_server().await?;
     Ok(())
 }

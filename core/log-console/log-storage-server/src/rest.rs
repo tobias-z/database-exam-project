@@ -41,6 +41,7 @@ async fn ping() -> String {
 
 #[get("/search?<q>")]
 async fn search(q: &str) -> WebResult<Json<Vec<Document>>> {
+    info!("search with query: {}", q);
     match query_lang::parse::into_aggregation(q) {
         Ok(parsed_res) => Ok(Json(parsed_res)),
         Err(err) => Err(WebError::new(Status::UnprocessableEntity, err.to_string()).into()),
@@ -74,7 +75,7 @@ mod middleware {
     }
 }
 
-pub async fn run_rest_server() -> Result<(), rocket::Error> {
+pub async fn start_rest_server() -> Result<(), rocket::Error> {
     rocket::build()
         .attach(middleware::Logging)
         .mount("/", routes![ping, search])

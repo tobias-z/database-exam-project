@@ -33,14 +33,15 @@ use super::command::{self, QueryCommand};
 /// assert!(result.is_ok());
 /// ```
 pub fn into_aggregation(query: &str) -> anyhow::Result<Vec<Document>> {
-    let mut aggregation = vec![];
+    let mut aggregation: Vec<Document> = vec![];
+    let mut push = |doc| aggregation.push(doc);
     for pipe in query.split('|') {
         let mut pipe = pipe.split_whitespace();
         let Some(query_command) = pipe.next() else {
             return Err(anyhow!("No query command provided in pipe"));
         };
         let query = Query::from_str(query_command.trim())?;
-        aggregation.extend(query.execute(pipe.collect())?);
+        query.execute(pipe.collect(), &mut push)?;
     }
     Ok(aggregation)
 }
@@ -57,14 +58,14 @@ enum Query {
 }
 
 impl Query {
-    fn execute(&self, pipe: Vec<&str>) -> anyhow::Result<Vec<Document>> {
+    fn execute(&self, pipe: Vec<&str>, push: &mut impl FnMut(Document)) -> anyhow::Result<()> {
         match self {
-            Query::Container(cmd) => cmd.execute(pipe),
-            Query::Offset(cmd) => cmd.execute(pipe),
-            Query::LogLevel(cmd) => cmd.execute(pipe),
-            Query::Find(cmd) => cmd.execute(pipe),
-            Query::Sort(cmd) => cmd.execute(pipe),
-            Query::Take(cmd) => cmd.execute(pipe),
+            Query::Container(cmd) => cmd.execute(pipe, push),
+            Query::Offset(cmd) => cmd.execute(pipe, push),
+            Query::LogLevel(cmd) => cmd.execute(pipe, push),
+            Query::Find(cmd) => cmd.execute(pipe, push),
+            Query::Sort(cmd) => cmd.execute(pipe, push),
+            Query::Take(cmd) => cmd.execute(pipe, push),
         }
     }
 }

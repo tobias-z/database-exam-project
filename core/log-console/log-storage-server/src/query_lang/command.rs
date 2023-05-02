@@ -75,7 +75,7 @@ impl QueryCommand for OffsetCommand {
         push(doc! {
             "$match": {
                 "date": {
-                    "$gte": ["$date", self.get_datetime_from_range(time_arg)?]
+                    "$gte": self.get_datetime_from_range(time_arg)?
                 }
             }
         });
@@ -92,29 +92,36 @@ impl QueryCommand for LogLevelCommand {
         };
         // map the given log level to the stored number for that log level
         match log_service::get_log_level(log_level) {
-            Some(log_level) => Ok(push(doc! {
-                "$match": {
-                    "level": log_level as i32,
-                }
-            })),
+            Some(log_level) => {
+                push(doc! {
+                    "$match": {
+                        "level": log_level as i32,
+                    }
+                });
+                Ok(())
+            }
             None => Err(anyhow!("invalid log level provided {}", log_level)),
         }
     }
 }
 
-pub struct FindCommand;
+pub struct FzyFindCommand;
 
-impl QueryCommand for FindCommand {
+impl QueryCommand for FzyFindCommand {
     /// This makes use of the a text index in mongodb
     /// https://www.mongodb.com/docs/manual/core/index-text/
     /// We index the message field as a text index.
+    /// The use of this command has to be the first thing you do. Otherwise Mongo does not allow
+    /// it.
     fn execute(&self, args: Vec<&str>, push: &mut impl FnMut(Document)) -> anyhow::Result<()> {
         if args.is_empty() {
-            return Err(anyhow!("No search term provided to the find command"));
+            return Err(anyhow!("No search term provided to the fuzzy find command"));
         }
         push(doc! {
-            "$text": {
-                "$search": args.join(" "),
+            "$match": {
+                "$text": {
+                    "$search": args.join(" "),
+                },
             },
         });
         // sort the results by their score
@@ -124,6 +131,24 @@ impl QueryCommand for FindCommand {
                     "$meta": "textScore"
                 }
             }
+        });
+        Ok(())
+    }
+}
+
+pub struct RegexFindCommand;
+
+impl QueryCommand for RegexFindCommand {
+    fn execute(&self, args: Vec<&str>, push: &mut impl FnMut(Document)) -> anyhow::Result<()> {
+        if args.is_empty() {
+            return Err(anyhow!("No search term provided to the regex find command"));
+        }
+        push(doc! {
+            "$match": {
+                "message": {
+                    "$regex": args.join(" "),
+                },
+            },
         });
         Ok(())
     }
@@ -211,11 +236,19 @@ mod test {
     }
 
     #[test]
-    fn can_map_find() {
-        assert!(execute_command(FindCommand, vec!["hello", "world"]).is_ok());
-        assert!(execute_command(FindCommand, vec!["hello"]).is_ok());
+    fn can_map_fzy_find() {
+        assert!(execute_command(FzyFindCommand, vec!["hello", "world"]).is_ok());
+        assert!(execute_command(FzyFindCommand, vec!["hello"]).is_ok());
 
-        assert!(execute_command(FindCommand, vec![]).is_err());
+        assert!(execute_command(FzyFindCommand, vec![]).is_err());
+    }
+
+    #[test]
+    fn can_map_regex_find() {
+        assert!(execute_command(RegexFindCommand, vec!["hello", "world"]).is_ok());
+        assert!(execute_command(RegexFindCommand, vec!["hello"]).is_ok());
+
+        assert!(execute_command(RegexFindCommand, vec![]).is_err());
     }
 
     #[test]

@@ -1,4 +1,7 @@
-use crate::{connection, model::Log, proto::LogRequest};
+use mongodb::bson::Document;
+use rocket::futures::TryStreamExt;
+
+use crate::{connection, model::Log, proto::LogRequest, query_lang};
 
 pub async fn add_log(request: LogRequest) -> mongodb::error::Result<()> {
     if is_blacklisted(&request.container_name) {
@@ -16,6 +19,15 @@ pub async fn add_log(request: LogRequest) -> mongodb::error::Result<()> {
     let collection = db.collection::<Log>("logs");
     collection.insert_one(log, None).await?;
     Ok(())
+}
+
+pub async fn run_query(query: &str) -> anyhow::Result<Vec<Document>> {
+    let aggregation = query_lang::parse::into_aggregation(query)?;
+    let db = connection::get_connection().await?;
+    let collection = db.collection::<Log>("logs");
+    let cursor = collection.aggregate(aggregation, None).await?;
+    let documents = cursor.try_collect::<Vec<Document>>().await?;
+    Ok(documents)
 }
 
 fn is_blacklisted(container_name: &str) -> bool {

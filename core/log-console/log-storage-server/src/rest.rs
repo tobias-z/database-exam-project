@@ -6,7 +6,7 @@ use rocket::{
     serde::{json::Json, Deserialize, Serialize},
 };
 
-use crate::query_lang;
+use crate::log_service;
 
 type ErrorResponse = Custom<Json<WebError>>;
 
@@ -42,7 +42,7 @@ async fn ping() -> String {
 #[get("/search?<q>")]
 async fn search(q: &str) -> WebResult<Json<Vec<Document>>> {
     info!("search with query: {}", q);
-    match query_lang::parse::into_aggregation(q) {
+    match log_service::run_query(q).await {
         Ok(parsed_res) => Ok(Json(parsed_res)),
         Err(err) => Err(WebError::new(Status::UnprocessableEntity, err.to_string()).into()),
     }

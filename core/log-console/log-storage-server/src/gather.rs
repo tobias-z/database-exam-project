@@ -9,7 +9,9 @@ use crate::{
 };
 
 #[derive(Default)]
-pub struct LoggingStreamImpl {}
+pub struct LoggingStreamImpl {
+    log_service: log_service::LogService
+}
 
 #[tonic::async_trait]
 impl LoggingStream for LoggingStreamImpl {
@@ -20,7 +22,7 @@ impl LoggingStream for LoggingStreamImpl {
         let mut stream = request.into_inner();
         while let Some(log) = stream.message().await? {
             // got log message from client
-            if let Err(err) = log_service::add_log(log).await {
+            if let Err(err) = self.log_service.add_log(log).await {
                 error!("unable to save log {}", err);
             };
         }

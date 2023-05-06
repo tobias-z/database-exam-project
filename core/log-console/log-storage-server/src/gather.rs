@@ -10,7 +10,7 @@ use crate::{
 
 #[derive(Default)]
 pub struct LoggingStreamImpl {
-    log_service: log_service::LogService
+    log_service: log_service::LogService,
 }
 
 #[tonic::async_trait]

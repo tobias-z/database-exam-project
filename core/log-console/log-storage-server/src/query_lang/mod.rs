@@ -1,2 +1,2 @@
-pub mod parse;
 mod command;
+pub mod parse;

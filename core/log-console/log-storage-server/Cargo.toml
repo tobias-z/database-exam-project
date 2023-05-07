@@ -1,5 +1,5 @@
 [package]
-name = "storage"
+name = "log-storage-server"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,12 +8,14 @@ edition = "2021"
 [dependencies]
 log = {workspace = true}
 env_logger = {workspace = true}
+dotenv = {workspace = true}
 prost = "0.11.9"
 tokio = {version = "1.27.0", features = ["full"]}
 tonic = "0.9.1"
 mongodb = "2.4.0"
 serde = {version = "1.0.160", feature = ["derive"]}
 anyhow = "1.0.70"
+rocket = {version = "=0.5.0-rc.3", features = ["json"]}
 
 [build-dependencies]
 tonic-build = "0.9.1"

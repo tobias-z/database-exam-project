@@ -14,6 +14,8 @@ A common use case could be that you want to ensure that multiple services have b
 
 An example of this, is the MongoDB setup. Here two directories have been created, one for the database itself, and one for the services. This allows us to use the `depends-on` property, in the `log-console` configuration.
 
+`NOTICE`: All services should be run in the prod network, which is externally created
+
 # Configuration Properties
 
 TODO: docs

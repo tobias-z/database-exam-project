@@ -6,6 +6,10 @@ x-logging:
   options:
     max-size: 10m
 
+networks:
+  prod:
+    external: true
+
 services:
   mongodb:
     image: mongo:6.0.5
@@ -21,3 +25,5 @@ services:
       timeout: 10s
       retries: 5
       start_period: 40s
+    networks:
+      - prod

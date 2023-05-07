@@ -8,11 +8,3 @@ members = [
 log = "0.4.17"
 env_logger = "0.10.0"
 dotenv = "0.15.0"
-
-# [[bin]]
-# name = "log-watcherd"
-# path = "log-watcherd/src/main.rs"
-#
-# [[bin]]
-# name = "log-storage-server"
-# path = "log-storage-server/src/main.rs"

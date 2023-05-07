@@ -25,4 +25,5 @@ It is intended for you to work on a specific project at a time, and it is most l
 - `lib`: this directory contains libraries not intended to be run, but rather imported in other applications. They should be installed locally, and imported through the group id `dk.groupa`. When importing them use a command like `mvn install` to install it locally. In CI all libraries are available to you.
 - `core`: this directory contains applications that are supposed to be runnable. They include a Dockerfile, that will be built during CI and deployed
 - `hack`: contains things like scripts, and other things that make life better
+- `conf`: contains the production configuration of docker files and settings for each of the projects
 - `.github`: contains CI related configuration files. It is set up so that a new project can get a pipeline created for it using prebuilt actions

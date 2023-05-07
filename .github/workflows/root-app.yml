@@ -1,0 +1,43 @@
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - hack/init-conf/**
+      - .github/workflows/init-conf.yml
+      - conf/**
+      - hack/start-app
+
+name: Root App
+
+permissions:
+  contents: read
+
+jobs:
+  root-app:
+    name: Deploy root app with conf
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Deploy to dockerhub
+        shell: bash
+        run: |
+          echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+
+          # Use the version of init-conf as the root app version
+          version=$(cat hack/init-conf/Cargo.toml | grep version | head -n 1 | tr 'version = "' " " | xargs | awk '{print tolower($0)}')
+          lower_case_image="$DOCKER_USERNAME/root-app"
+          branch_name=$(echo $GITHUB_REF | cut -d'/' -f 3 | tr / -)
+          if [ "$branch_name" = "main" ]; then
+            image="$lower_case_image:$branch_name-$version"
+          else
+            image="$lower_case_image:$branch_name-$version-snapshot"
+          fi
+
+          docker build --tag "$image" .
+          docker push "$image"
+        env:
+          DOCKER_USERNAME: tobiaszimmer
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

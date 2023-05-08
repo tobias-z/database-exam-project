@@ -20,7 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
-
       - name: Deploy to dockerhub
         shell: bash
         run: |
@@ -38,6 +37,12 @@ jobs:
 
           docker build --tag "$image" .
           docker push "$image"
+
+          if [ "$branch_name" = "main" ]; then
+            # ensure that the image is also pushed as the latest image if this is the main branch
+            docker tag "$image" "$lower_case_image:latest"
+            docker push "$lower_case_image:latest"
+          fi
         env:
           DOCKER_USERNAME: tobiaszimmer
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

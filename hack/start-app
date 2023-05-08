@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+
+# start docker daemon
+dockerd-entrypoint.sh &
+
+# wait for docker daemon to be ready
+until docker ps > /dev/null 2>&1; do
+    sleep 1
+done
+
+# ensure the prod volume
+prod=$(docker network ls)
+if [[ "$prod" != *"prod"* ]]; then
+    docker network create prod
+fi
+
+# start all apps using the configuration files
+/app/init-conf
+
+nginx -g "daemon off;"

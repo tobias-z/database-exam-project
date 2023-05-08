@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 # start docker daemon
-dockerd-entrypoint.sh --host tcp://0.0.0.0:2375 &
+dockerd-entrypoint.sh &
 
 # wait for docker daemon to be ready
 until docker ps > /dev/null 2>&1; do

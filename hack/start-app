@@ -17,4 +17,4 @@ fi
 # start all apps using the configuration files
 /app/init-conf
 
-sleep infinity
+nginx -g "daemon off;"

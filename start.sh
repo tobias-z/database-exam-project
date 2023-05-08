@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 
-version=$1
+print_help() {
+    echo "Usage: sh start.sh [OPTIONS]
+
+Options:
+    -v  A specific root-app version. Default is 'latest'. Example: -v develop-0.1.0-snapshot
+    -e  Expose all the databases for you to access outside. This requires that the ports are available.
+    -h  Show this help menu.
+"
+}
+
+while getopts v:eh flag
+do
+    case "${flag}" in
+        v)
+            version=${OPTARG}
+            ;;
+        e)
+            exposed_dbs="-p 27017:27017 -p 7687:7687 -p 1433:1433"
+            ;;
+        h)
+            print_help
+            exit 0
+            ;;
+    esac
+done
 
 if [ -z $version ]; then
     echo "No version provided. Using the latest."
@@ -15,10 +39,4 @@ if [ -z $version ]; then
     version="latest"
 fi
 
-docker run \
-    -d \
-    --name youbook \
-    --privileged \
-    -p 80:80 \
-    -p 27017:27017 \
-    tobiaszimmer/root-app:$version
+docker run -d --name youbook --privileged $exposed_dbs -p 80:80 tobiaszimmer/root-app:$version

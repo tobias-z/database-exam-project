@@ -23,7 +23,7 @@ services:
       start_period: 40s
 
   log-watcherd:
-    image: tobiaszimmer/log-watcherd:0.1.0
+    image: tobiaszimmer/log-watcherd:develop-0.1.0-snapshot
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     environment:
@@ -34,11 +34,13 @@ services:
       - log-storage-server
 
   log-storage-server:
-    image: tobiaszimmer/log-storage-server:0.1.0
+    image: tobiaszimmer/log-storage-server:develop-0.1.0-snapshot
     environment:
       STORAGE_SERVER_URI: "0.0.0.0:7888"
       CONTAINER_BLACKLIST: "mongo"
       MONGO_CONNECTION_STR: "mongodb://user:pass@mongodb:27017"
+    ports:
+      - "8000:8000"
     logging: *default-logging
     depends_on:
       mongodb:

@@ -1,7 +1,10 @@
 "use client";
 
+import Toggle from "@/components/toggle";
 import useLogServiceProxy from "@/utils/use-log-service-proxy";
 import { FormEvent, useState } from "react";
+import { MdSouth, MdEast } from "react-icons/md";
+import useLocalStorage from "use-local-storage";
 
 type Log = {
     container_id: string;
@@ -21,24 +24,123 @@ function transformLogs(logs: Log[]): Log[] {
 }
 
 export default function Home() {
-    const [query, setQuery] = useState("");
-    const { refetch: refetchLogQuery } = useLogServiceProxy<Log[]>(
-        "search",
-        `/search?q=${query}`,
-        transformLogs
-    );
+    // We use local storage for ease of use. This is a really bad idea in production, since we are storing the password in plain text.
+    const [fields, setFields] = useLocalStorage("youbook-logs-input-fields", {
+        query: "",
+        username: "",
+        password: "",
+    });
+    const [showCredentialInput, setShowCredentialInput] = useState(false);
+    const {
+        data: logs,
+        isLoading,
+        error,
+        refetch: refetchLogQuery,
+    } = useLogServiceProxy<Log[]>("search", `/search?q=${fields.query}`, transformLogs);
 
     function handleExecuteQuery(event: FormEvent<HTMLFormElement>): void {
         event.preventDefault();
         refetchLogQuery();
     }
 
+    function handleChange(event: React.ChangeEvent<HTMLInputElement>): void {
+        setFields({
+            ...fields,
+            [event.target.name]: event.target.value,
+        });
+    }
+
     return (
-        <main>
-            <form onSubmit={handleExecuteQuery}>
-                <input value={query} onChange={e => setQuery(e.target.value)} />
-                <button type="submit">Submit</button>
-            </form>
+        <main style={{ display: "flex", flexDirection: "column" }}>
+            <section
+                style={{ height: "95vh", width: "95vw", alignSelf: "center", padding: "10px" }}
+            >
+                <form
+                    onSubmit={handleExecuteQuery}
+                    style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+                >
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                        <h1>YouBook Logs</h1>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            <button
+                                style={{
+                                    padding: "20px",
+                                    backgroundColor: "#00aae3",
+                                    color: "white",
+                                    height: "10%",
+                                    lineHeight: "0px",
+                                    border: "none",
+                                    cursor: "pointer",
+                                }}
+                                type="submit"
+                            >
+                                <strong>Run Query</strong>
+                            </button>
+                        </div>
+                    </div>
+                    {error ? (
+                        <div
+                            style={{
+                                borderRadius: "5px",
+                                border: "1px solid black",
+                                paddingLeft: "10px",
+                                backgroundColor: "#eb4034",
+                            }}
+                        >
+                            <p style={{ color: "white" }}>{error.message.message}</p>
+                        </div>
+                    ) : null}
+                    <input
+                        name="query"
+                        value={fields.query}
+                        placeholder="YouBook Query"
+                        onChange={handleChange}
+                        style={{
+                            padding: "12px 20px",
+                            margin: "8px 0",
+                        }}
+                    />
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                        <Toggle
+                            text="Set Credentials "
+                            onChange={setShowCredentialInput}
+                            disabledIcon={<MdEast />}
+                            enabledIcon={<MdSouth />}
+                        />
+                        {showCredentialInput ? (
+                            <>
+                                <input
+                                    name="username"
+                                    value={fields.username}
+                                    placeholder="Username"
+                                    onChange={handleChange}
+                                    style={{
+                                        padding: "10px 20px",
+                                        margin: "5px 0",
+                                    }}
+                                />
+                                <input
+                                    name="password"
+                                    type="password"
+                                    value={fields.password}
+                                    placeholder="Password"
+                                    onChange={handleChange}
+                                    style={{
+                                        padding: "10px 20px",
+                                        margin: "5px 0",
+                                    }}
+                                />
+                            </>
+                        ) : null}
+                    </div>
+                </form>
+            </section>
         </main>
     );
 }

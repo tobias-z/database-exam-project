@@ -72,7 +72,7 @@ fn log_to_u8(log: &str) -> Option<u8> {
 }
 
 struct Blacklist {
-    blacklist: HashSet<String>,
+    blacklist: Vec<String>,
 }
 
 impl Blacklist {
@@ -81,10 +81,10 @@ impl Blacklist {
             .expect("env variable CONTAINER_BLACKLIST was not found")
             .split(',')
             .map(|s| s.to_string())
-            .collect::<HashSet<String>>();
+            .collect::<Vec<String>>();
         Self { blacklist }
     }
     fn is_blacklisted(&self, container_name: &str) -> bool {
-        self.blacklist.contains(container_name)
+        self.blacklist.iter().any(|item| container_name.contains(item))
     }
 }

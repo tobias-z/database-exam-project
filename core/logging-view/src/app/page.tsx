@@ -1,5 +1,6 @@
 "use client";
 
+import AutocompletedQuery from "@/components/autocompleted-query/autocompleted-query";
 import Toggle from "@/components/toggle";
 import useLogServiceProxy from "@/utils/use-log-service-proxy";
 import { FormEvent, useState } from "react";
@@ -96,16 +97,7 @@ export default function Home() {
                             <p style={{ color: "white" }}>{error.message.message}</p>
                         </div>
                     ) : null}
-                    <input
-                        name="query"
-                        value={fields.query}
-                        placeholder="YouBook Query"
-                        onChange={handleChange}
-                        style={{
-                            padding: "12px 20px",
-                            margin: "8px 0",
-                        }}
-                    />
+                    <AutocompletedQuery query={fields.query} onChange={handleChange} />
                     <div style={{ display: "flex", flexDirection: "column" }}>
                         <Toggle
                             text="Set Credentials "

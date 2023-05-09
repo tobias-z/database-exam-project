@@ -1,0 +1,29 @@
+version: "3.9"
+
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+
+networks:
+  prod:
+    external: true
+
+services:
+  mongodb:
+    image: mongo:6.0.5
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=pass
+    logging: *default-logging
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - prod

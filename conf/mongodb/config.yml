@@ -1,0 +1,1 @@
+after-start: sh conf/mongodb/setup-mongo.sh

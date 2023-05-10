@@ -1,6 +1,5 @@
 import { useMemo, useRef, useState } from "react";
 import "./autocompleted-query.css";
-import { SERVER_PROPS_ID } from "next/dist/shared/lib/constants";
 
 type Props = {
     query: string;

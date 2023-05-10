@@ -4,11 +4,10 @@ on:
       - main
       - develop
     paths:
-      - core/log-console/**
-      - .github/workflows/log-console.yml
-  pull_request:
+      - core/logging-view/**
+      - .github/workflows/logging-view.yml
 
-name: Log Console Pipeline
+name: Logging View Pipeline
 
 permissions:
   contents: read
@@ -22,9 +21,9 @@ jobs:
 
       - name: Deploy to dockerhub
         shell: bash
-        working-directory: ${{ inputs.working_directory }}
-        if: ${{ github.event_name != 'pull_request' }}
+        working-directory: core/logging-view
         run: |
+          sudo apt-get update && sudo apt-get install jq -y
           echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
 
           version=$(cat package.json | jq .version | tr '"' " " | xargs)

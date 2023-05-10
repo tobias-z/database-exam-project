@@ -85,6 +85,8 @@ impl Blacklist {
         Self { blacklist }
     }
     fn is_blacklisted(&self, container_name: &str) -> bool {
-        self.blacklist.iter().any(|item| container_name.contains(item))
+        self.blacklist
+            .iter()
+            .any(|item| container_name.contains(item))
     }
 }

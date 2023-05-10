@@ -5,6 +5,7 @@ import { SERVER_PROPS_ID } from "next/dist/shared/lib/constants";
 type Props = {
     query: string;
     onChange: (name: string, value: string) => void;
+    isLoading: boolean;
 };
 
 type Command = {
@@ -26,7 +27,7 @@ function createCompletions(commands: Commands) {
     }));
 }
 
-export default function AutocompletedQuery({ query, onChange }: Props): JSX.Element {
+export default function AutocompletedQuery({ query, onChange, isLoading }: Props): JSX.Element {
     const [completions, setCompletions] = useState<Array<Completion>>([]);
     const queryInputRef = useRef<HTMLInputElement>(null);
     const commands = useMemo<Commands>(() => {
@@ -176,24 +177,33 @@ export default function AutocompletedQuery({ query, onChange }: Props): JSX.Elem
         const replaceRegex = new RegExp(`${lastWord}$`);
         setTimeout(() => {
             updateCompletions(query.replace(replaceRegex, completion));
-        }, 100)
+        }, 100);
     }
 
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
-            <input
-                name="query"
-                ref={queryInputRef}
-                value={query}
-                placeholder="YouBook Query"
-                onChange={handleChange}
-                onBlur={handleBlur}
-                onFocus={handleFocus}
-                style={{
-                    padding: "12px 20px",
-                    margin: completions.length === 0 ? "8px 0" : "",
-                }}
-            />
+            <div className="inputcontainer">
+                <input
+                    name="query"
+                    className="loading"
+                    ref={queryInputRef}
+                    value={query}
+                    placeholder="YouBook Query"
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    onFocus={handleFocus}
+                    autoComplete="off"
+                    style={{
+                        padding: `12px ${isLoading ? "35px" : "20px"}`,
+                        margin: completions.length === 0 ? "8px 0" : "",
+                    }}
+                />
+                {isLoading ? (
+                    <div className="icon-container">
+                        <i className="loader" />
+                    </div>
+                ) : null}
+            </div>
             {completions.length !== 0
                 ? completions.map(completion => (
                     <div

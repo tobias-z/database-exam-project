@@ -1,6 +1,7 @@
 "use client";
 
 import AutocompletedQuery from "@/components/autocompleted-query/autocompleted-query";
+import { QueryInformation } from "@/components/query-information";
 import Toggle from "@/components/toggle";
 import useLogServiceProxy from "@/utils/use-log-service-proxy";
 import { FormEvent, useState } from "react";
@@ -13,15 +14,47 @@ type Log = {
     message: string;
     date: string;
     level: number;
+    isMultiline: boolean;
+    firstLine: string;
 };
 
 function transformLogs(logs: Log[]): Log[] {
     return logs.map(log => {
+        const isMultiline = log.message.includes("\n");
+        const firstLine = isMultiline ? log.message.split("\n")[0] : log.message;
         return {
             ...log,
-            date: new Intl.DateTimeFormat("en-US").format(log.date as unknown as number),
+            date: new Intl.DateTimeFormat("eu-DK", {
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+                day: "numeric",
+                year: "numeric",
+                month: "numeric",
+            }).format((log.date as any).$date.$numberLong),
+            isMultiline,
+            firstLine,
         };
     });
+}
+
+function getColorFromLogLevel(level: number): string {
+    switch (level) {
+        case 1:
+            return "darkred";
+        case 2:
+            return "red";
+        case 3:
+            return "orange";
+        case 4:
+            return "green";
+        case 5:
+            return "white";
+        case 6:
+            return "lightblue";
+        default:
+            return "";
+    }
 }
 
 export default function Home() {
@@ -54,6 +87,8 @@ export default function Home() {
     function handleChange(event: React.ChangeEvent<HTMLInputElement>): void {
         handleFieldChange(event.target.name, event.target.value);
     }
+
+    console.log(logs);
 
     return (
         <main style={{ display: "flex", flexDirection: "column" }}>
@@ -89,6 +124,7 @@ export default function Home() {
                             </button>
                         </div>
                     </div>
+                    <QueryInformation />
                     {error ? (
                         <div
                             style={{
@@ -101,7 +137,11 @@ export default function Home() {
                             <p style={{ color: "white" }}>{error.message.message}</p>
                         </div>
                     ) : null}
-                    <AutocompletedQuery query={fields.query} onChange={handleFieldChange} />
+                    <AutocompletedQuery
+                        query={fields.query}
+                        onChange={handleFieldChange}
+                        isLoading={isLoading}
+                    />
                     <div style={{ display: "flex", flexDirection: "column" }}>
                         <Toggle
                             text="Set Credentials "
@@ -135,8 +175,48 @@ export default function Home() {
                             </>
                         ) : null}
                     </div>
+                    {logs ? logs.map((log, i) => <LogLine key={i} {...log} />) : null}
                 </form>
             </section>
         </main>
+    );
+}
+
+function LogLine(log: Log) {
+    const [showEverything, setShowEverything] = useState(false);
+
+    return (
+        <div
+            style={{
+                borderLeft: "2px solid",
+                paddingLeft: "5px",
+                borderLeftColor: getColorFromLogLevel(log.level),
+            }}
+        >
+            {log.isMultiline ? (
+                <Toggle
+                    onChange={setShowEverything}
+                    disabledIcon={<MdEast />}
+                    enabledIcon={<MdSouth />}
+                />
+            ) : null}
+            <p
+                style={{
+                    display: "inline",
+                    marginLeft: log.isMultiline ? "10px" : "",
+                }}
+            >
+                {log.container_name} - {log.date}
+            </p>
+            <span style={{ display: "inline", marginLeft: "10px", marginRight: "10px" }} />
+            <p
+                style={{
+                    whiteSpace: "pre-wrap",
+                    display: "inline",
+                }}
+            >
+                {showEverything ? log.message : log.firstLine}
+            </p>
+        </div>
     );
 }

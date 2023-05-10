@@ -44,11 +44,15 @@ export default function Home() {
         refetchLogQuery();
     }
 
-    function handleChange(event: React.ChangeEvent<HTMLInputElement>): void {
+    function handleFieldChange(name: string, value: string): void {
         setFields({
             ...fields,
-            [event.target.name]: event.target.value,
+            [name]: value,
         });
+    }
+
+    function handleChange(event: React.ChangeEvent<HTMLInputElement>): void {
+        handleFieldChange(event.target.name, event.target.value);
     }
 
     return (
@@ -97,7 +101,7 @@ export default function Home() {
                             <p style={{ color: "white" }}>{error.message.message}</p>
                         </div>
                     ) : null}
-                    <AutocompletedQuery query={fields.query} onChange={handleChange} />
+                    <AutocompletedQuery query={fields.query} onChange={handleFieldChange} />
                     <div style={{ display: "flex", flexDirection: "column" }}>
                         <Toggle
                             text="Set Credentials "

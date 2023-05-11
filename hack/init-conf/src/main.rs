@@ -154,6 +154,7 @@ impl ConfigProcess {
 
     fn wait_for_processes(&self, depends_on: &HashSet<String>) -> anyhow::Result<()> {
         let mut completed = 0;
+        println!("{}: Waiting for processes: {:?}", self.name, depends_on);
         while let Ok(process_done) = self.rx.recv() {
             match process_done {
                 Notification::Success(process_done) => {
@@ -179,11 +180,15 @@ impl ConfigProcess {
 fn run_script(name: String, script: &str) -> anyhow::Result<()> {
     let (code, output, error) = run_script!(script).unwrap();
     println!("{}: exited with code: {}", name, code);
-    if !output.is_empty() {
-        println!("{}: {}", name, output);
+    if code == 0 {
+        if script.contains("docker compose up") {
+            // For some reason docker command output is thrown into the error output
+            println!("{}: {}", name, error);
+        } else {
+            println!("{}: {}", name, output);
+        }
+        Ok(())
+    } else {
+        Err(anyhow!("{}: {}", name, error))
     }
-    if !error.is_empty() {
-        return Err(anyhow!("{}: {}", name, error));
-    }
-    Ok(())
 }

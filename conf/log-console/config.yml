@@ -1,2 +1,4 @@
 depends-on:
   - mongodb
+before-start: echo "Before log console script"
+after-start: echo "After log console script"

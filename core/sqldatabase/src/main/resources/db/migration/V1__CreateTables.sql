@@ -15,15 +15,15 @@ GO
 CREATE TABLE [dbo].[book](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
 	[title] [varchar](100) NOT NULL,
-	[description] [nvarchar](max) NULL,
+	[description] [varchar](255) NULL,
 	[author_name] [varchar](255) NOT NULL,
 	[language] [varchar](100) NOT NULL,
 	[rating_score] [decimal](2, 0) NULL,
 	[rating_votes] [bigint] NOT NULL,
 	[review_number] [bigint] NOT NULL,
 	[year_published] [int] NOT NULL,
-	[available] [bit] NOT NULL
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+	[available] [int] NOT NULL
+) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[book] ADD  CONSTRAINT [PK_book] PRIMARY KEY CLUSTERED 
 (
@@ -40,6 +40,18 @@ ALTER TABLE [dbo].[book]  WITH CHECK ADD  CONSTRAINT [FK_book_author] FOREIGN KE
 REFERENCES [dbo].[author] ([name])
 GO
 ALTER TABLE [dbo].[book] CHECK CONSTRAINT [FK_book_author]
+GO
+
+--Create table for genre
+CREATE TABLE [dbo].[genre](
+							  [id] [bigint] IDENTITY(1,1) NOT NULL,
+							  [name] [varchar](100) NOT NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[genre] ADD  CONSTRAINT [PK_genre] PRIMARY KEY CLUSTERED
+	(
+	 [id] ASC
+		)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
 --Create table for book genres
@@ -66,6 +78,26 @@ GO
 ALTER TABLE [dbo].[book_genre] CHECK CONSTRAINT [FK_book_genre_genre]
 GO
 
+--Create table for users
+CREATE TABLE [dbo].[user](
+							 [id] [bigint] IDENTITY(1,1) NOT NULL,
+							 [email] [varchar](255) NULL,
+							 [password] [varchar](255) NULL,
+							 [role] [varchar](20) NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[user] ADD  CONSTRAINT [PK_user] PRIMARY KEY CLUSTERED
+	(
+	 [id] ASC
+		)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[user]  WITH CHECK ADD  CONSTRAINT [role_constraint] CHECK  (([role]='empolyee' OR [role]='free' OR [role]='subscribed'))
+GO
+ALTER TABLE [dbo].[user] CHECK CONSTRAINT [role_constraint]
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'A user should only be subscribed free or an employee' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'user', @level2type=N'CONSTRAINT',@level2name=N'role_constraint'
+GO
+
 --Create table for borrow queue
 CREATE TABLE [dbo].[borrow_queue](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
@@ -88,18 +120,6 @@ ALTER TABLE [dbo].[borrow_queue]  WITH CHECK ADD  CONSTRAINT [FK_borrow_queue_us
 REFERENCES [dbo].[user] ([id])
 GO
 ALTER TABLE [dbo].[borrow_queue] CHECK CONSTRAINT [FK_borrow_queue_user]
-GO
-
---Create table for genre
-CREATE TABLE [dbo].[genre](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[name] [varchar](100) NOT NULL
-) ON [PRIMARY]
-GO
-ALTER TABLE [dbo].[genre] ADD  CONSTRAINT [PK_genre] PRIMARY KEY CLUSTERED 
-(
-	[id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 
 --Create table for loans
@@ -126,24 +146,4 @@ ALTER TABLE [dbo].[loans]  WITH CHECK ADD  CONSTRAINT [FK_Loans_user] FOREIGN KE
 REFERENCES [dbo].[user] ([id])
 GO
 ALTER TABLE [dbo].[loans] CHECK CONSTRAINT [FK_Loans_user]
-GO
-
---Create table for users
-CREATE TABLE [dbo].[user](
-	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[email] [varchar](255) NULL,
-	[password] [varchar](255) NULL,
-	[role] [varchar](20) NULL
-) ON [PRIMARY]
-GO
-ALTER TABLE [dbo].[user] ADD  CONSTRAINT [PK_user] PRIMARY KEY CLUSTERED 
-(
-	[id] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-ALTER TABLE [dbo].[user]  WITH CHECK ADD  CONSTRAINT [role_constraint] CHECK  (([role]='empolyee' OR [role]='free' OR [role]='subscribed'))
-GO
-ALTER TABLE [dbo].[user] CHECK CONSTRAINT [role_constraint]
-GO
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'A user should only be subscribed free or an employee' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'user', @level2type=N'CONSTRAINT',@level2name=N'role_constraint'
 GO

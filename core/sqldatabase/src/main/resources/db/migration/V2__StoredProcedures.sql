@@ -7,18 +7,29 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_BorrowBook]
     AS
         BEGIN TRY
         BEGIN TRANSACTION borrowBook
-                BEGIN
-                    INSERT INTO loans (user_id, book_id, borrowed_at, due_date) values (@user_id, @book_id, (Select Getdate()), (Select Getdate()+30));
-                    UPDATE book SET available = 1 WHERE id = @book_id;
+            BEGIN
+                DECLARE @availableBooks INT;
+                SELECT @availableBooks = available FROM book WHERE id = @book_id;
+                IF @availableBooks = 0
+                    BEGIN
+                        RAISERROR('No books are available', 1, 1);
+                    END
+
+                ELSE
+                    BEGIN
+                        DECLARE @loanId BIGINT;
+                        INSERT INTO loans (user_id, book_id, borrowed_at, due_date) values (@user_id, @book_id, (Select Getdate()), (Select Getdate()+30))
+                        SET @loanId = SCOPE_IDENTITY();
+                        UPDATE book SET available = available - 1 WHERE id = @book_id;
+                        SELECT * FROM [loans] WHERE id = @loanId;
+                    END
                 END
         COMMIT TRANSACTION borrowBook
         END TRY
 
         BEGIN CATCH
-            ROLLBACK TRANSACTION borrowBook;
-            BEGIN
-                    RAISERROR ('failed to insert loan', 1, 1);
-            END
+        ROLLBACK TRANSACTION borrowBook;
+            RAISERROR ('failed to insert loan', 1, 1);
         END CATCH
 GO
 
@@ -48,16 +59,17 @@ GO
 CREATE OR ALTER PROCEDURE [dbo].[sp_CreateBook]
 
     @title VARCHAR(100),
-    @description text,
+    @description VARCHAR(255),
     @author_name VARCHAR(255),
     @language VARCHAR(100),
-    @year_published INT
+    @year_published INT,
+    @available INT
 
     AS
         BEGIN TRY
         BEGIN TRANSACTION createBook
                 BEGIN
-                    INSERT INTO book (title, [description], author_name, [language], year_published) values (@title, @description, @author_name, @language, @year_published);
+                    INSERT INTO book (title, [description], author_name, [language], year_published, available) values (@title, @description, @author_name, @language, @year_published, @available);
                 END
         COMMIT TRANSACTION createBook
         END TRY
@@ -106,7 +118,7 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReturnBook]
         BEGIN TRANSACTION returnBook
                 BEGIN
                     UPDATE loans SET returned_at = (Select GETDATE()) WHERE user_id = @user_id and book_id = @book_id;
-                    UPDATE book SET available = 0 WHERE id = @book_id;
+                    UPDATE book SET available = available + 1 WHERE id = @book_id;
                 END
         COMMIT TRANSACTION returnBook
         END TRY

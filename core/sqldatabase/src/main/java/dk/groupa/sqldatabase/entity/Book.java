@@ -1,4 +1,4 @@
-package dk.groupa.sqldatabase.repository;
+package dk.groupa.sqldatabase.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -9,14 +9,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "loans")
+@Table(name = "book")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Loans {
+public class Book {
     @Id
-    private Long id;
-    private int user_id;
-    private int book_id;
+    private long id;
+
 }

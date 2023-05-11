@@ -46,7 +46,7 @@ runs:
     - name: Setup Java
       uses: ./.github/actions/setup-java
       with:
-        java-version: ${{ inputs.java_version }}
+        java_version: ${{ inputs.java_version }}
 
     - name: Install libs
       working-directory: lib

@@ -2,17 +2,17 @@ name: Setup Java
 description: Action used to setup a Java environment
 
 inputs:
-  grpc:
-    description: If the project uses grpc
+  java_version:
+    description: Java version
     required: true
     default: "no"
 
 runs:
   using: composite
   steps:
-    - name: Set up JDK ${{ inputs.jdk_version }}
+    - name: Set up JDK ${{ inputs.java_version }}
       uses: actions/setup-java@v3
       with:
-        java-version: "${{ inputs.jdk_version }}"
+        java-version: "${{ inputs.java_version }}"
         distribution: "temurin"
         cache: maven

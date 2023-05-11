@@ -1,0 +1,44 @@
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - core/logging-view/**
+      - .github/workflows/logging-view.yml
+
+name: Logging View Pipeline
+
+permissions:
+  contents: read
+
+jobs:
+  logging-view-pipeline:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Deploy to dockerhub
+        shell: bash
+        working-directory: core/logging-view
+        run: |
+          sudo apt-get update && sudo apt-get install jq -y
+          echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+
+          version=$(cat package.json | jq .version | tr '"' " " | xargs)
+          for file in *.Dockerfile; do
+            lower_case_image="$DOCKER_USERNAME/$(echo "$file" | sed 's/.Dockerfile//' | awk '{print tolower($0)}')"
+            branch_name=$(echo $GITHUB_REF | cut -d'/' -f 3 | tr / -)
+            if [ "$branch_name" = "main" ]; then
+              image="$lower_case_image:$branch_name-$version"
+            else
+              image="$lower_case_image:$branch_name-$version-snapshot"
+            fi
+
+            docker build --tag "$image" -f "$file" .
+            docker push "$image"
+          done
+        env:
+          DOCKER_USERNAME: tobiaszimmer
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

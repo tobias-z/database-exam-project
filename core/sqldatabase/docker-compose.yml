@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  mssql:
+    #image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/azure-sql-edge
+    container_name: youbook-sql
+    command: sh /start.sh
+      #- /run-initialization.sh & /opt/mssql/bin/sqlservr
+
+    volumes:
+      - ./docker/run-initialization.sh:/run-initialization.sh
+      - ./docker/create-database.sql:/create-database.sql
+      - ./docker/start.sh:/start.sh
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: thisIsSuperStrong1234
+      SA_PASSWORD: thisIsSuperStrong1234
+    ports:
+      - "1433:1433"

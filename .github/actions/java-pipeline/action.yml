@@ -46,7 +46,7 @@ runs:
     - name: Setup Java
       uses: ./.github/actions/setup-java
       with:
-        java_version: ${{ java_version }}
+        java_version: ${{ inputs.java_version }}
 
     - name: Install libs
       working-directory: lib
@@ -70,7 +70,7 @@ runs:
 
     - name: Run tests
       working-directory: ${{ inputs.working_directory }}
-      if: ${{ inputs.run_tests == "yes" }}
+      if: ${{ inputs.run_tests == 'yes' }}
       shell: bash
       run: mvn verify
 

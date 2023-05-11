@@ -1,4 +1,6 @@
-use std::{thread, time::Duration};
+use std::{fs, thread, time::Duration};
+
+use pub_sub::{PubSub, Subscription};
 
 // read directory names
 // start process for each of them
@@ -9,18 +11,45 @@ use std::{thread, time::Duration};
 //  - notify that this process is done
 fn main() {
     // Read configurations and open a thread for each of them
-    let (tx, rx) = crossbeam_channel::bounded::<&str>(10);
+    let config_names = fs::read_dir("conf")
+        .expect("expected a conf directory but it was not found")
+        .filter(|dir| match dir {
+            Ok(dir) => dir.metadata().unwrap().is_dir(),
+            Err(_) => false,
+        })
+        .map(|conf_dir| {
+            conf_dir
+                .unwrap()
+                .file_name()
+                .into_string()
+                .expect("Unable to parse OSString to String")
+        })
+        .collect::<Vec<String>>();
+
+    let channel = pub_sub::PubSub::<&str>::new();
     let mut config_processes = vec![];
-    for i in 0..10 {
-        let tx = tx.clone();
-        let rx = rx.clone();
-        config_processes.push(thread::spawn(move || {
-            thread::sleep(Duration::from_secs(2));
-            println!("{}: {}", i, rx.recv().unwrap());
-        }));
+    for name in config_names {
+        let process = ConfigProcess::new(name, channel.clone(), channel.subscribe());
+        config_processes.push(thread::spawn(move || process.process_config()));
     }
+
     for proceess in config_processes {
-        proceess.join();
+        proceess.join().unwrap();
     }
-    tx.send("hello world").unwrap();
+}
+
+struct ConfigProcess<'r> {
+    name: String,
+    channel: PubSub<&'r str>,
+    rx: Subscription<&'r str>,
+}
+
+impl<'r> ConfigProcess<'r> {
+    fn new(name: String, channel: PubSub<&'r str>, rx: Subscription<&'r str>) -> Self {
+        Self { name, channel, rx }
+    }
+
+    fn process_config(&self) {
+        println!("completed config for {}", self.name);
+    }
 }

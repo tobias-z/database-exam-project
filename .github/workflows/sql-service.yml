@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 jobs:
-  log-console-pipeline:
+  sql-service-pipeline:
     name: Test and Deploy
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +23,7 @@ jobs:
       - name: Run java pipeline
         uses: ./.github/actions/java-pipeline
         with:
-          working_directory: core/log-console
+          working_directory: core/sqldatabase
           run_tests: no
           java_version: "17"
           docker_password: ${{ secrets.DOCKER_PASSWORD }}

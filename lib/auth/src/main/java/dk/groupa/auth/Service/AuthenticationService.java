@@ -7,6 +7,7 @@ import dk.groupa.auth.Utils.AuthTokenDecode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -20,9 +21,13 @@ public class AuthenticationService {
     AuthenticationRepo authenticationRepo;
 
     public AuthDTO isUserAuthenticatedWithRole(String authToken, String role) {
-        String[] decoded = authTokenDecode.decodeBase64Token(authToken);
+        Optional<String[]> decoded = authTokenDecode.decodeBase64Token(authToken);
 
-        Optional<User> user = authenticationRepo.findUserByEmailAndPassword(decoded[0], decoded[1]);
+        if(decoded.isEmpty()) {
+            return new AuthDTO(Optional.of(new User()), false);
+        }
+
+        Optional<User> user = authenticationRepo.findUserByEmailAndPassword(decoded.get()[0], decoded.get()[1]);
 
         if(user.isPresent()) {
             if(Objects.equals(user.get().getRole(), role)) {
@@ -30,5 +35,9 @@ public class AuthenticationService {
             }
         }
         return new AuthDTO(user, false);
+    }
+
+    public User createUser(String email, String password, String role) {
+        return authenticationRepo.createUser(email, password, role);
     }
 }

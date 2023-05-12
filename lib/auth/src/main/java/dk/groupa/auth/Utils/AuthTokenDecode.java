@@ -11,7 +11,7 @@ public class AuthTokenDecode {
         if(token.contains("Basic ")) {
             String[] base64encoded = token.split("Basic ");
 
-            // 4 seems to be the lowest possible decoded base64 length for a username and password in the Authorization header.
+            // 4 seems to be the lowest possible encoded base64 length for a username and password in the Authorization header.
             if(base64encoded[1].length() >= 4) {
                 String base64decoded = new String(Base64.getDecoder().decode(base64encoded[1]));
 

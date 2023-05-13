@@ -5,9 +5,11 @@ on:
       - develop
     paths:
       - hack/init-conf/**
-      - .github/workflows/init-conf.yml
+      - .github/workflows/root-app.yml
       - conf/**
       - hack/start-app
+      - hack/nginx-conf/**
+      - Dockerfile
 
 name: Root App
 

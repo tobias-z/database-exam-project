@@ -11,7 +11,7 @@ pub struct Log {
     pub level: Option<u8>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Hash, PartialEq, Eq)]
 pub struct MonitorQuery {
     pub query: String,
     pub interval: String,

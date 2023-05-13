@@ -1127,6 +1127,7 @@ name = "log-storage-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "crossbeam-channel",
  "dotenv",
  "env_logger",
  "log",

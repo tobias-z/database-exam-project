@@ -1,12 +1,16 @@
 use mongodb::bson::Document;
+use rocket::http::Status;
 use rocket::{
-    http::Status,
+    request::{self, FromRequest, Request},
     response::status::Custom,
     routes,
     serde::{json::Json, Deserialize, Serialize},
+    State,
 };
 
-use crate::{log_service, model::MonitorQuery};
+use crate::alert::AlertMessage;
+use crate::monitor_service;
+use crate::{alert::AlertHandler, log_service, model::MonitorQuery};
 
 type ErrorResponse = Custom<Json<WebError>>;
 
@@ -48,13 +52,22 @@ async fn search(q: &str) -> WebResult<Json<Vec<Document>>> {
     }
 }
 
-#[post(
-    "/monitor-query",
-    format = "application/json",
-    data = "<monitor_query>"
-)]
-async fn create_monitor_query(monitor_query: Json<MonitorQuery>) -> WebResult<Json<bool>> {
-    todo!()
+async fn create_monitor_query(
+    monitor_query: Json<MonitorQuery>,
+    handler: &State<AlertHandler>,
+) -> WebResult<Json<bool>> {
+    let create = monitor_service::create_monitor_query(&monitor_query).await;
+    if let Err(e) = create {
+        return Err(WebError::new(Status::BadRequest, e.to_string()).into());
+    }
+    match handler.notify(AlertMessage::Create(monitor_query.0)) {
+        Ok(_) => Ok(Json(true)),
+        Err(_) => Err(WebError::new(
+            Status::InternalServerError,
+            "unable to start monitoring process".to_string(),
+        )
+        .into()),
+    }
 }
 
 #[get("/monitor-query")]
@@ -94,9 +107,10 @@ mod middleware {
     }
 }
 
-pub async fn start_rest_server() -> Result<(), rocket::Error> {
+pub async fn start_rest_server(alert_handler: AlertHandler) -> Result<(), rocket::Error> {
     rocket::build()
         .attach(middleware::Logging)
+        .manage(alert_handler)
         .mount(
             "/",
             routes![

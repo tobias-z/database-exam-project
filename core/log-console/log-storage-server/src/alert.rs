@@ -17,13 +17,13 @@ pub enum AlertMessage {
 type Alerts = Arc<Mutex<HashSet<AlertMessage>>>;
 
 #[derive(Clone)]
-pub struct AlertHandler {
+pub struct Alerter {
     alerts: Alerts,
     tx: crossbeam_channel::Sender<AlertMessage>,
     rx: crossbeam_channel::Receiver<AlertMessage>,
 }
 
-impl AlertHandler {
+impl Alerter {
     fn new() -> Self {
         let (tx, rx) = crossbeam_channel::bounded(10);
         Self {
@@ -33,7 +33,7 @@ impl AlertHandler {
         }
     }
 
-    pub fn notify(&self, msg: AlertMessage) -> anyhow::Result<()> {
+    pub fn alert(&self, msg: AlertMessage) -> anyhow::Result<()> {
         self.alerts.lock().unwrap().insert(msg.clone());
         self.tx.send(msg)?;
         Ok(())
@@ -42,15 +42,15 @@ impl AlertHandler {
 
 /// starts the alert monitoring and returns a sender which can be used to comunicate with the
 /// monitoring system
-pub async fn start_alerts() -> anyhow::Result<AlertHandler> {
-    let handler = AlertHandler::new();
-    let create_handler = handler.clone();
+pub async fn start_alerts() -> anyhow::Result<Alerter> {
+    let alerter = Alerter::new();
+    let create_alerter = alerter.clone();
     thread::spawn(move || {
-        for msg in create_handler.rx.recv().iter() {
+        for msg in create_alerter.rx.recv().iter() {
             if let AlertMessage::Create(monitor_query) = msg {
-                let handler = create_handler.clone();
+                let alerter = create_alerter.clone();
                 let query = monitor_query.clone();
-                thread::spawn(move || monitor(handler, query));
+                thread::spawn(move || monitor(alerter, query));
             }
         }
     });
@@ -60,16 +60,16 @@ pub async fn start_alerts() -> anyhow::Result<AlertHandler> {
             query: query.get_str("query")?.to_string(),
             interval: query.get_str("interval")?.to_string(),
         };
-        let handler = handler.clone();
-        thread::spawn(move || monitor(handler, monitor_query));
+        let alerter = alerter.clone();
+        thread::spawn(move || monitor(alerter, monitor_query));
     }
-    Ok(handler)
+    Ok(alerter)
 }
 
 /// monitors a single query.
 /// sleeps for the specified interval and then executes the specified query if the process has not been
 /// dropped.
-async fn monitor(handler: AlertHandler, monitor_query: MonitorQuery) {
+async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
     let duration = match get_duration_from_interval(&monitor_query.interval) {
         Ok(duration) => duration,
         Err(e) => {
@@ -78,7 +78,7 @@ async fn monitor(handler: AlertHandler, monitor_query: MonitorQuery) {
         }
     };
     loop {
-        if handler
+        if alerter
             .alerts
             .lock()
             .unwrap()
@@ -87,6 +87,7 @@ async fn monitor(handler: AlertHandler, monitor_query: MonitorQuery) {
             info!("Stopping monitoring for query {} because the query was deleted", monitor_query.query);
             return;
         }
+        info!("Running monitoring query {}", monitor_query.query);
         match log_service::run_query(&monitor_query.query).await {
             Ok(results) => {
                 if !results.is_empty() {

@@ -10,7 +10,7 @@ use rocket::{
 
 use crate::alert::AlertMessage;
 use crate::monitor_service;
-use crate::{alert::AlertHandler, log_service, model::MonitorQuery};
+use crate::{alert::Alerter, log_service, model::MonitorQuery};
 
 type ErrorResponse = Custom<Json<WebError>>;
 
@@ -52,15 +52,20 @@ async fn search(q: &str) -> WebResult<Json<Vec<Document>>> {
     }
 }
 
+#[post(
+    "/monitor-query",
+    format = "application/json",
+    data = "<monitor_query>"
+)]
 async fn create_monitor_query(
     monitor_query: Json<MonitorQuery>,
-    handler: &State<AlertHandler>,
+    alerter: &State<Alerter>,
 ) -> WebResult<Json<bool>> {
     let create = monitor_service::create_monitor_query(&monitor_query).await;
     if let Err(e) = create {
         return Err(WebError::new(Status::BadRequest, e.to_string()).into());
     }
-    match handler.notify(AlertMessage::Create(monitor_query.0)) {
+    match alerter.alert(AlertMessage::Create(monitor_query.0)) {
         Ok(_) => Ok(Json(true)),
         Err(_) => Err(WebError::new(
             Status::InternalServerError,
@@ -107,10 +112,10 @@ mod middleware {
     }
 }
 
-pub async fn start_rest_server(alert_handler: AlertHandler) -> Result<(), rocket::Error> {
+pub async fn start_rest_server(alerter: Alerter) -> Result<(), rocket::Error> {
     rocket::build()
         .attach(middleware::Logging)
-        .manage(alert_handler)
+        .manage(alerter)
         .mount(
             "/",
             routes![

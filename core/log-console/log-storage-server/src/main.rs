@@ -24,7 +24,7 @@ pub async fn main() -> Result<(), rocket::Error> {
     dotenv::dotenv().ok();
     env_logger::init();
     tokio::spawn(start_log_gathering_server());
-    let alert_handler = alert::start_alerts().await.unwrap();
-    rest::start_rest_server(alert_handler).await?;
+    let alerter = alert::start_alerts().await.unwrap();
+    rest::start_rest_server(alerter).await?;
     Ok(())
 }

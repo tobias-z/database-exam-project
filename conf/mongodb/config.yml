@@ -1,1 +1,2 @@
 after-start: sh conf/mongodb/setup-mongo.sh
+before-start: echo "Before mongo start script"

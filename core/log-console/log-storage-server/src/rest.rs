@@ -6,7 +6,7 @@ use rocket::{
     serde::{json::Json, Deserialize, Serialize},
 };
 
-use crate::log_service;
+use crate::{log_service, model::MonitorQuery};
 
 type ErrorResponse = Custom<Json<WebError>>;
 
@@ -48,6 +48,25 @@ async fn search(q: &str) -> WebResult<Json<Vec<Document>>> {
     }
 }
 
+#[post(
+    "/monitor-query",
+    format = "application/json",
+    data = "<monitor_query>"
+)]
+async fn create_monitor_query(monitor_query: Json<MonitorQuery>) -> WebResult<Json<bool>> {
+    todo!()
+}
+
+#[get("/monitor-query")]
+async fn get_all_monitor_queries() -> WebResult<Json<Vec<MonitorQuery>>> {
+    todo!()
+}
+
+#[delete("/monitor-query/<id>")]
+async fn delete_monitor_query(id: String) -> WebResult<Json<bool>> {
+    todo!()
+}
+
 mod middleware {
     use rocket::{
         fairing::{Fairing, Info, Kind},
@@ -78,7 +97,16 @@ mod middleware {
 pub async fn start_rest_server() -> Result<(), rocket::Error> {
     rocket::build()
         .attach(middleware::Logging)
-        .mount("/", routes![ping, search])
+        .mount(
+            "/",
+            routes![
+                ping,
+                search,
+                create_monitor_query,
+                get_all_monitor_queries,
+                delete_monitor_query
+            ],
+        )
         .launch()
         .await?;
     Ok(())

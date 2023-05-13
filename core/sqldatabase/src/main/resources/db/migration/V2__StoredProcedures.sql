@@ -144,7 +144,7 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReserveBook]
         BEGIN TRY
         BEGIN TRANSACTION reserveBook
             BEGIN
-                INSERT INTO borrow_queue (user_id, book_id, enqueued_at) values (@user_id, @book_id, (Select Getdate()));
+                INSERT INTO borrow_queue (user_id, book_id, enqueued_at, isSubscribed) values (@user_id, @book_id, (Select Getdate()), 0);
             END
 
         COMMIT TRANSACTION reserveBook

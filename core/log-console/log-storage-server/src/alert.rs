@@ -52,7 +52,10 @@ pub async fn start_alerts() -> anyhow::Result<Alerter> {
                 let alerter = create_alerter.clone();
                 let query = monitor_query.clone();
                 tokio::spawn(async move {
-                    info!("Started monitoring of query '{}' running on interval '{}'", query.query, query.interval);
+                    info!(
+                        "Started monitoring of query '{}' running on interval '{}'",
+                        query.query, query.interval
+                    );
                     monitor(alerter, query).await
                 });
             }
@@ -66,7 +69,10 @@ pub async fn start_alerts() -> anyhow::Result<Alerter> {
         };
         let alerter = alerter.clone();
         tokio::spawn(async move {
-            info!("Started monitoring of query '{}' running on interval '{}'", monitor_query.query, monitor_query.interval);
+            info!(
+                "Started monitoring of query '{}' running on interval '{}'",
+                monitor_query.query, monitor_query.interval
+            );
             monitor(alerter, monitor_query).await;
         });
     }
@@ -86,12 +92,7 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
     };
     loop {
         let drop = AlertMessage::Drop(monitor_query.clone());
-        if alerter
-            .alerts
-            .lock()
-            .unwrap()
-            .contains(&drop)
-        {
+        if alerter.alerts.lock().unwrap().contains(&drop) {
             alerter.alerts.lock().unwrap().remove(&drop);
             info!(
                 "Stopping monitoring for query '{}' because the query was deleted",

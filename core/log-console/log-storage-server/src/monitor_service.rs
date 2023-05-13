@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use anyhow::anyhow;
-use mongodb::bson::{doc, oid::ObjectId, Document};
+use mongodb::{bson::{doc, oid::ObjectId, Document}, Database};
 use rocket::futures::TryStreamExt;
 
 use crate::{connection, model::MonitorQuery};
@@ -15,8 +15,8 @@ pub async fn create_monitor_query(monitor_query: &MonitorQuery) -> mongodb::erro
     Ok(())
 }
 
-pub async fn delete_monitor_query(id: String) -> mongodb::error::Result<()> {
-    let id = match ObjectId::from_str(&id) {
+pub async fn delete_monitor_query(db: &Database, id: &str) -> mongodb::error::Result<()> {
+    let id = match ObjectId::from_str(id) {
         Ok(id) => id,
         Err(_) => {
             return Err(mongodb::error::Error::custom(anyhow!(
@@ -24,16 +24,15 @@ pub async fn delete_monitor_query(id: String) -> mongodb::error::Result<()> {
             )))
         }
     };
-    connection::get_connection()
-        .await?
+    db
         .collection::<MonitorQuery>("monitor_query")
         .delete_one(doc! { "_id": id }, None)
         .await?;
     Ok(())
 }
 
-pub async fn get_monitor_query_by_id(id: &str) -> mongodb::error::Result<Option<MonitorQuery>> {
-    let id = match ObjectId::from_str(&id) {
+pub async fn get_monitor_query_by_id(db: &Database, id: &str) -> mongodb::error::Result<Option<MonitorQuery>> {
+    let id = match ObjectId::from_str(id) {
         Ok(id) => id,
         Err(_) => {
             return Err(mongodb::error::Error::custom(anyhow!(
@@ -41,8 +40,7 @@ pub async fn get_monitor_query_by_id(id: &str) -> mongodb::error::Result<Option<
             )))
         }
     };
-    let monitor_query = connection::get_connection()
-        .await?
+    let monitor_query = db
         .collection::<MonitorQuery>("monitor_query")
         .find_one(doc! { "_id": id }, None)
         .await?;

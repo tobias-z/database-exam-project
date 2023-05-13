@@ -9,7 +9,7 @@ use rocket::{
 };
 
 use crate::alert::AlertMessage;
-use crate::monitor_service;
+use crate::{monitor_service, connection};
 use crate::{alert::Alerter, log_service, model::MonitorQuery};
 
 type ErrorResponse = Custom<Json<WebError>>;
@@ -61,8 +61,10 @@ async fn create_monitor_query(
     monitor_query: Json<MonitorQuery>,
     alerter: &State<Alerter>,
 ) -> WebResult<Json<bool>> {
+    info!("Creating new montior query {:?}", monitor_query.0);
     let create = monitor_service::create_monitor_query(&monitor_query).await;
     if let Err(e) = create {
+        warn!("Unable to create monitor query using request: {:?}", monitor_query.0);
         return Err(WebError::new(Status::BadRequest, e.to_string()).into());
     }
     match alerter.alert(AlertMessage::Create(monitor_query.0)) {
@@ -85,12 +87,22 @@ async fn get_all_monitor_queries() -> WebResult<Json<Vec<Document>>> {
 
 #[delete("/monitor-query/<id>")]
 async fn delete_monitor_query(id: String, alerter: &State<Alerter>) -> WebResult<Json<bool>> {
-    let Ok(Some(monitor_query)) = monitor_service::get_monitor_query_by_id(&id).await else {
-        return Err(WebError::new(Status::NotFound, format!("No monitor query found with id {}", id)).into());
+    let client = connection::get_client().await.expect("unable to connect to mongodb");
+    let db = client.database("logs");
+    let mut session = client.start_session(None).await.unwrap();
+    // Ensure that if we do find a MonitorQuery it will not be deleted in some other process in the
+    // meantime (ACID)
+    session.start_transaction(None).await.unwrap();
+    let Ok(Some(monitor_query)) = monitor_service::get_monitor_query_by_id(&db, &id).await else {
+        info!("No MonitorQuery found with id: {}", &id);
+        return Err(WebError::new(Status::NotFound, format!("No monitor query found with id {}", &id)).into());
     };
-    if let Err(e) = monitor_service::delete_monitor_query(id).await {
-        return Err(WebError::new(Status::NotFound, e.to_string()).into());
+    if let Err(e) = monitor_service::delete_monitor_query(&db, &id).await {
+        error!("Unable to delete MonitorQuery with id: {}. {}", id, e);
+        return Err(WebError::new(Status::InternalServerError, e.to_string()).into());
     };
+    session.commit_transaction().await.unwrap();
+
     match alerter.alert(AlertMessage::Drop(monitor_query)) {
         Ok(_) => Ok(Json(true)),
         Err(_) => Err(WebError::new(

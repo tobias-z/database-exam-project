@@ -76,13 +76,29 @@ async fn create_monitor_query(
 }
 
 #[get("/monitor-query")]
-async fn get_all_monitor_queries() -> WebResult<Json<Vec<MonitorQuery>>> {
-    todo!()
+async fn get_all_monitor_queries() -> WebResult<Json<Vec<Document>>> {
+    match monitor_service::get_all_monitor_queries().await {
+        Ok(all) => Ok(Json(all)),
+        Err(e) => Err(WebError::new(Status::InternalServerError, e.to_string()).into()),
+    }
 }
 
 #[delete("/monitor-query/<id>")]
-async fn delete_monitor_query(id: String) -> WebResult<Json<bool>> {
-    todo!()
+async fn delete_monitor_query(id: String, alerter: &State<Alerter>) -> WebResult<Json<bool>> {
+    let Ok(Some(monitor_query)) = monitor_service::get_monitor_query_by_id(&id).await else {
+        return Err(WebError::new(Status::NotFound, format!("No monitor query found with id {}", id)).into());
+    };
+    if let Err(e) = monitor_service::delete_monitor_query(id).await {
+        return Err(WebError::new(Status::NotFound, e.to_string()).into());
+    };
+    match alerter.alert(AlertMessage::Drop(monitor_query)) {
+        Ok(_) => Ok(Json(true)),
+        Err(_) => Err(WebError::new(
+            Status::InternalServerError,
+            "unable to remove query monitoring process".to_string(),
+        )
+        .into()),
+    }
 }
 
 mod middleware {

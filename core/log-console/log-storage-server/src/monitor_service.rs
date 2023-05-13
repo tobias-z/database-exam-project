@@ -32,6 +32,23 @@ pub async fn delete_monitor_query(id: String) -> mongodb::error::Result<()> {
     Ok(())
 }
 
+pub async fn get_monitor_query_by_id(id: &str) -> mongodb::error::Result<Option<MonitorQuery>> {
+    let id = match ObjectId::from_str(&id) {
+        Ok(id) => id,
+        Err(_) => {
+            return Err(mongodb::error::Error::custom(anyhow!(
+                "Invalid id provided"
+            )))
+        }
+    };
+    let monitor_query = connection::get_connection()
+        .await?
+        .collection::<MonitorQuery>("monitor_query")
+        .find_one(doc! { "_id": id }, None)
+        .await?;
+    Ok(monitor_query)
+}
+
 pub async fn get_all_monitor_queries() -> mongodb::error::Result<Vec<Document>> {
     connection::get_connection()
         .await?

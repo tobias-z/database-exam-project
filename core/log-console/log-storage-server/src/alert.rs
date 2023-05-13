@@ -1,9 +1,10 @@
 use std::{
     collections::HashSet,
     sync::{Arc, Mutex},
-    thread,
     time::Duration,
 };
+
+use tokio::time;
 
 use crate::{log_service, model::MonitorQuery, monitor_service};
 
@@ -45,12 +46,12 @@ impl Alerter {
 pub async fn start_alerts() -> anyhow::Result<Alerter> {
     let alerter = Alerter::new();
     let create_alerter = alerter.clone();
-    thread::spawn(move || {
+    tokio::spawn(async move {
         for msg in create_alerter.rx.recv().iter() {
             if let AlertMessage::Create(monitor_query) = msg {
                 let alerter = create_alerter.clone();
                 let query = monitor_query.clone();
-                thread::spawn(move || monitor(alerter, query));
+                tokio::spawn(async move { monitor(alerter, query).await });
             }
         }
     });
@@ -61,7 +62,10 @@ pub async fn start_alerts() -> anyhow::Result<Alerter> {
             interval: query.get_str("interval")?.to_string(),
         };
         let alerter = alerter.clone();
-        thread::spawn(move || monitor(alerter, monitor_query));
+        tokio::spawn(async move {
+            info!("Started monitoring of query {} running on interval {}", monitor_query.query, monitor_query.interval);
+            monitor(alerter, monitor_query).await;
+        });
     }
     Ok(alerter)
 }
@@ -84,14 +88,20 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
             .unwrap()
             .contains(&AlertMessage::Drop(monitor_query.clone()))
         {
-            info!("Stopping monitoring for query {} because the query was deleted", monitor_query.query);
+            info!(
+                "Stopping monitoring for query {} because the query was deleted",
+                monitor_query.query
+            );
             return;
         }
         info!("Running monitoring query {}", monitor_query.query);
         match log_service::run_query(&monitor_query.query).await {
             Ok(results) => {
                 if !results.is_empty() {
-                    info!("Sending alert, because query {} found results", monitor_query.query);
+                    info!(
+                        "Sending alert, because query {} found results",
+                        monitor_query.query
+                    );
                     println!("ALERT: {:?}", results);
                 }
             }
@@ -100,7 +110,7 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
                 return;
             }
         };
-        thread::sleep(duration);
+        time::sleep(duration).await;
     }
 }
 

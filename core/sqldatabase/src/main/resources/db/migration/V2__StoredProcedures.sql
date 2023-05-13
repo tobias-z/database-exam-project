@@ -117,8 +117,11 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReturnBook]
         BEGIN TRY
         BEGIN TRANSACTION returnBook
                 BEGIN
+                    DECLARE @loanId BIGINT;
                     UPDATE loans SET returned_at = (Select GETDATE()) WHERE user_id = @user_id and book_id = @book_id;
+                    SET @loanId = SCOPE_IDENTITY();
                     UPDATE book SET available = available + 1 WHERE id = @book_id;
+                    SELECT * FROM [loans] WHERE id = @loanId;
                 END
         COMMIT TRANSACTION returnBook
         END TRY

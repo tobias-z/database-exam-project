@@ -4,6 +4,11 @@ use std::{
     time::Duration,
 };
 
+use anyhow::anyhow;
+use lettre::{
+    message::header::ContentType, transport::smtp::authentication::Credentials, Message,
+    SmtpTransport, Transport,
+};
 use tokio::time;
 
 use crate::{log_service, model::MonitorQuery, monitor_service};
@@ -90,15 +95,16 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
             return;
         }
     };
+    let drop = AlertMessage::Drop(monitor_query.clone());
     loop {
-        let drop = AlertMessage::Drop(monitor_query.clone());
+        // check if a drop has been issued for this process
         if alerter.alerts.lock().unwrap().contains(&drop) {
             alerter.alerts.lock().unwrap().remove(&drop);
             info!(
                 "Stopping monitoring for query '{}' because the query was deleted",
                 monitor_query.query
             );
-            return;
+            break;
         }
         info!("Running monitoring query {}", monitor_query.query);
         match log_service::run_query(&monitor_query.query).await {
@@ -108,12 +114,38 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
                         "Sending alert, because query '{}' found results",
                         monitor_query.query
                     );
-                    println!("ALERT: {:?}", results);
+                    let emails = get_user_emails();
+                    for result in results {
+                        for email in &emails {
+                            let send_email = send_email(Email {
+                                to_name: "Support".to_string(),
+                                to_email: email.clone(),
+                                subject: "YouBook Alert".to_string(),
+                                message_html: format!(
+                                    r#"
+                                    <h4>Info</h4>
+                                    <p>Query: {}</p>
+                                    <p>Container: {}</p>
+                                    <h4>Alert</h4>
+                                    <pre>{}</pre>
+                                "#,
+                                    monitor_query.query,
+                                    result
+                                        .get_str("container_name")
+                                        .expect("No container found on log"),
+                                    result.get_str("message").expect("No message found on log"),
+                                ),
+                            });
+                            if let Err(e) = send_email {
+                                error!("Unable to send email to {}: {:?}", email, e);
+                            }
+                        }
+                    }
                 }
             }
             Err(e) => {
                 error!("{}", e);
-                return;
+                break;
             }
         };
         time::sleep(duration).await;
@@ -146,5 +178,46 @@ fn get_duration_from_interval(interval: &str) -> anyhow::Result<Duration> {
             "Invalid interval provided {} to interval",
             interval
         ))
+    }
+}
+
+fn get_user_emails() -> Vec<String> {
+    vec!["cph-tz11@cphbusiness.dk".to_string()]
+}
+
+struct Email {
+    to_name: String,
+    to_email: String,
+    subject: String,
+    message_html: String,
+}
+
+fn send_email(mail: Email) -> anyhow::Result<()> {
+    let email = Message::builder()
+        .from("YouBook <you-book.alert@outlook.com>".parse()?)
+        .to(format!("{} <{}>", mail.to_name, mail.to_email).parse()?)
+        .subject(mail.subject)
+        .header(ContentType::TEXT_HTML)
+        .body(mail.message_html)?;
+
+    // Putting in plane text as this account will be deleted after the exam
+    let creds = Credentials::new(
+        "you-book.alert@outlook.com".to_string(),
+        "thisIsSuperStrong1234".to_string(),
+    );
+
+    let mailer = SmtpTransport::starttls_relay("smtp.office365.com")?
+        .credentials(creds)
+        .build();
+
+    match mailer.send(&email) {
+        Ok(_) => {
+            info!("Succesfully sent email to {}", mail.to_email);
+            Ok(())
+        }
+        Err(e) => {
+            error!("Unable to send email to {}, {:?}", mail.to_email, e);
+            Err(anyhow!("{}", e.to_string()))
+        }
     }
 }

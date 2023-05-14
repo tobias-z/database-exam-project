@@ -8,8 +8,8 @@ use rocket::{
 };
 
 use crate::alert::AlertMessage;
-use crate::monitor_service;
 use crate::{alert::Alerter, model::MonitorQuery};
+use crate::{log_service, monitor_service};
 
 type ErrorResponse = Custom<Json<WebError>>;
 

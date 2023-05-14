@@ -5,7 +5,7 @@ pub mod log_service;
 pub mod model;
 pub mod monitor_service;
 pub mod query_lang;
-mod rest;
+pub mod rest;
 
 #[macro_use]
 extern crate log;

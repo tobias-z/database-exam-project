@@ -9,9 +9,9 @@ SET @password = 'thisIsSuperStrong1234'
 SET @role = 'empolyee'
 
 EXECUTE @RC = [dbo].[sp_CreateUser]
-   @email
-  ,@password
-  ,@role
+    @email
+    ,@password
+    ,@role
 
 -- TODO: Set parameter values here.
 SET @email = 'MB@gmail.com'
@@ -20,8 +20,8 @@ SET @role = 'subscribed'
 
 EXECUTE @RC = [dbo].[sp_CreateUser]
     @email
-  ,@password
-  ,@role
+    ,@password
+    ,@role
 
 -- TODO: Set parameter values here.
 SET @email = 'MJ@gmail.com'
@@ -30,5 +30,5 @@ SET @role = 'free'
 
 EXECUTE @RC = [dbo].[sp_CreateUser]
     @email
-  ,@password
-  ,@role
+    ,@password
+    ,@role

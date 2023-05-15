@@ -18,7 +18,7 @@ public class LoanService {
         return loanRepository.borrowBook(userId, bookId);
     }
 
-    public Loan ReturnBook(int userId, int bookId) {
+    public Loan ReturnBook(int userId, int bookId) {  //TODO: Hvis en user har lånt den samme bog 2 gange bliver begge returned men kun 1 ligges på lager
         return loanRepository.returnBook(userId, bookId);
     }
 }

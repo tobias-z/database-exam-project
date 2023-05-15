@@ -12,7 +12,6 @@ import java.util.concurrent.PriorityBlockingQueue;
 @RestController
 @RequestMapping("/book")
 public class BookController {
-
     private final LoanService loanService;
     private final ReserveService reserveService;
 

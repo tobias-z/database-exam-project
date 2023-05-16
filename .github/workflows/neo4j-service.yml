@@ -23,7 +23,7 @@ jobs:
       - name: Run Neo4j pipeline
         uses: ./.github/actions/java-pipeline
         with:
-          working_directory: core/neoj4service
+          working_directory: core/neo4jservice
           run_tests: no
           java_version: "17"
           docker_password: ${{ secrets.DOCKER_PASSWORD }}

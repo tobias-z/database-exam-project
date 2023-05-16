@@ -1,7 +1,7 @@
 package dk.groupa.sqldatabase.repository;
 
 import dk.groupa.sqldatabase.entity.BorrowQueue;
-import dk.groupa.sqldatabase.service.ReserveService;
+import dk.groupa.sqldatabase.entity.Loan;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,5 +18,6 @@ public interface ReserveRepository extends JpaRepository<BorrowQueue, Long> {
     @Query(value = "SELECT * FROM borrow_queue", nativeQuery = true)
     List<BorrowQueue> getQueues();
 
-
+    @Query(value = "EXEC sp_NextReserve @borrow_queue_id = :borrow_queue_id, @user_id = :user_id, @book_id = :book_id", nativeQuery = true)
+    Loan borrowReserve(@Param("borrow_queue_id") int borrow_queue_id, @Param("user_id") int user_id, @Param("book_id") int book_id);
 }

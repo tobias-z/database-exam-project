@@ -171,3 +171,32 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReserveBook]
             END
         END CATCH
 GO
+
+--Create procedure for next user in queue to borrow book
+CREATE OR ALTER PROCEDURE [dbo].[sp_NextReserve]
+
+    @borrow_queue_id BIGINT,
+    @user_id BIGINT,
+    @book_id BIGINT
+
+    AS
+        BEGIN TRY
+        BEGIN TRANSACTION nextReserve
+            BEGIN
+                DELETE FROM borrow_queue WHERE id = @borrow_queue_id;
+
+                EXECUTE [dbo].[sp_BorrowBook]
+                    @user_id
+                    ,@book_id
+
+            END
+        COMMIT TRANSACTION nextReserve
+        END TRY
+
+        BEGIN CATCH
+        ROLLBACK TRANSACTION nextReserve;
+            BEGIN
+                RAISERROR ('failed to insert next reservation', 1, 1);
+            END
+        END CATCH
+GO

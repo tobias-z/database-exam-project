@@ -7,8 +7,6 @@ import dk.groupa.sqldatabase.service.ReserveService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.concurrent.PriorityBlockingQueue;
-
 @RestController
 @RequestMapping("/book")
 public class BookController {

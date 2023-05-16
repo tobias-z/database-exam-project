@@ -33,7 +33,7 @@ public class BookController {
     }
 
     @PostMapping("/{bookId}/reserve")
-    public PriorityBlockingQueue<WaitingBorrow> reserveBook(@NotNull @PathVariable("bookId") Integer bookId) {
+    public WaitingBorrow reserveBook(@NotNull @PathVariable("bookId") Integer bookId) {
         int userId = 1;     //TODO: Replace med Mads auth service
         return reserveService.Push(userId, bookId);
     }

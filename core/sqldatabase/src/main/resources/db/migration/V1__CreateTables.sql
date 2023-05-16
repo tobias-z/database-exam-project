@@ -104,7 +104,7 @@ CREATE TABLE [dbo].[borrow_queue](
 	[user_id] [bigint] NOT NULL,
 	[book_id] [bigint] NOT NULL,
 	[enqueued_at] [datetime] NOT NULL,
-	[isSubscribed] [bit] NOT NULL
+	[is_subscribed] [bit] NOT NULL
 	) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[borrow_queue] ADD  CONSTRAINT [PK_borrow_queue] PRIMARY KEY CLUSTERED
@@ -112,7 +112,7 @@ ALTER TABLE [dbo].[borrow_queue] ADD  CONSTRAINT [PK_borrow_queue] PRIMARY KEY C
 	 [id] ASC
 		)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[borrow_queue] ADD  CONSTRAINT [DEFAULT_borrow_queue_isSubscribed]  DEFAULT ((0)) FOR [isSubscribed]
+ALTER TABLE [dbo].[borrow_queue] ADD  CONSTRAINT [DEFAULT_borrow_queue_isSubscribed]  DEFAULT ((0)) FOR [is_subscribed]
 GO
 ALTER TABLE [dbo].[borrow_queue]  WITH CHECK ADD  CONSTRAINT [FK_borrow_queue_book] FOREIGN KEY([book_id])
 	REFERENCES [dbo].[book] ([id])

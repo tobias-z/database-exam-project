@@ -116,13 +116,16 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReturnBook]
     AS
         BEGIN TRY
         BEGIN TRANSACTION returnBook
-                BEGIN
-                    DECLARE @loanId BIGINT;
-                    UPDATE loans SET returned_at = (Select GETDATE()) WHERE user_id = @user_id and book_id = @book_id;
-                    SET @loanId = SCOPE_IDENTITY();
-                    UPDATE book SET available = available + 1 WHERE id = @book_id;
-                    SELECT * FROM [loans] WHERE id = @loanId;
-                END
+            BEGIN
+                DECLARE @loanId BIGINT;
+
+                WITH q AS (SELECT TOP 1 * FROM loans WHERE user_id = @user_id and book_id = @book_id and returned_at is null ORDER BY id ASC)
+                UPDATE q SET returned_at = (SELECT GETDATE());
+
+                SET @loanId = SCOPE_IDENTITY();
+                UPDATE book SET available = available + 1 WHERE id = @book_id;
+                SELECT * FROM [loans] WHERE id = @loanId;
+            END
         COMMIT TRANSACTION returnBook
         END TRY
 
@@ -144,9 +147,20 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReserveBook]
         BEGIN TRY
         BEGIN TRANSACTION reserveBook
             BEGIN
-                INSERT INTO borrow_queue (user_id, book_id, enqueued_at, isSubscribed) values (@user_id, @book_id, (Select Getdate()), 0);
-            END
+                DECLARE @user_role VARCHAR(20);
+                SET @user_role = (SELECT role FROM [user] WHERE id = @user_id);
 
+                IF @user_role = 'free'
+                    BEGIN
+                        INSERT INTO borrow_queue (user_id, book_id, enqueued_at, is_subscribed) values (@user_id, @book_id, (Select Getdate()), 0);
+                        SELECT * FROM borrow_queue WHERE id = SCOPE_IDENTITY();
+                    END
+                ELSE
+                    BEGIN
+                        INSERT INTO borrow_queue (user_id, book_id, enqueued_at, is_subscribed) values (@user_id, @book_id, (Select Getdate()), 1);
+                        SELECT * FROM borrow_queue WHERE id = SCOPE_IDENTITY();
+                    END
+                END
         COMMIT TRANSACTION reserveBook
         END TRY
 

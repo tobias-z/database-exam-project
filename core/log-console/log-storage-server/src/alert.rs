@@ -125,7 +125,7 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
                         "Sending alert, because query '{}' found results",
                         monitor_query.query
                     );
-                    let res = perform_on_emails_of_roles(vec!["SUPPORT".to_string()], |email| {
+                    let res = perform_on_emails_of_roles(monitor_query.send_to_roles.clone(), |email| {
                         for result in results.clone() {
                             let send_email = send_email(Email {
                                 to_name: "Support".to_string(),

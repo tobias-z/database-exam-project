@@ -5,7 +5,7 @@ import dk.groupa.proto.EmailRequest;
 import dk.groupa.proto.EmailResponse;
 import dk.groupa.proto.UserServiceGrpc.UserServiceImplBase;
 import io.grpc.stub.StreamObserver;
-import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -22,7 +22,7 @@ public class UserServerService extends UserServiceImplBase {
         return new StreamObserver<>() {
             @Override
             public void onNext(EmailRequest emailRequest) {
-                List<String> emailsOfRole = UserServerService.this.userCachingService.getEmailsOfRole(emailRequest.getRole());
+                Set<String> emailsOfRole = UserServerService.this.userCachingService.getEmailsOfRole(emailRequest.getRole());
                 if (!emailsOfRole.isEmpty()) {
                     //  Hit from cache
                     for (String email : emailsOfRole) {
@@ -32,7 +32,7 @@ public class UserServerService extends UserServiceImplBase {
                     return;
                 }
 
-                // TODO: call auth service here
+                // TODO: call auth service. If we get an okay response, save it in redis
                 responseObserver.onError(new Exception("No emails found with role."));
                 responseObserver.onCompleted();
             }

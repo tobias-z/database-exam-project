@@ -4,9 +4,9 @@ import dk.groupa.proto.AuthRequest;
 import dk.groupa.proto.AuthResponse;
 import dk.groupa.proto.AuthServiceGrpc.AuthServiceImplBase;
 import io.grpc.stub.StreamObserver;
-import org.springframework.stereotype.Service;
+import net.devh.boot.grpc.server.service.GrpcService;
 
-@Service
+@GrpcService
 public class AuthServerService extends AuthServiceImplBase {
 
     @Override

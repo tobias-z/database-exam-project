@@ -145,7 +145,8 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
                                 error!("Unable to send email to {}: {:?}", email, e);
                             }
                         }
-                    }).await;
+                    })
+                    .await;
                     if let Err(e) = res {
                         error!("Unable to send email to {:?}", e);
                     }
@@ -193,7 +194,7 @@ async fn perform_on_emails_of_roles(
     roles: Vec<String>,
     on_email: impl Fn(String),
 ) -> anyhow::Result<()> {
-    let uri = std::env::var("STORAGE_SERVER_URI")?;
+    let uri = std::env::var("AUTH_SERVER_URL")?;
     let mut client = UserServiceClient::connect(format!("http://{}", uri)).await?;
 
     let roles = tokio_stream::iter(roles).map(|role| EmailRequest { role });

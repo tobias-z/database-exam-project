@@ -8,11 +8,11 @@ import io.grpc.stub.StreamObserver;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import net.devh.boot.grpc.server.service.GrpcService;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
+@GrpcService
 public class UserServerService extends UserServiceImplBase {
 
     private final UserCachingService userCachingService;

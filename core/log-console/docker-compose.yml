@@ -13,3 +13,7 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=pass
     volumes:
       - "mongo-storage:/data/db"
+  auth-service:
+    image: tobiaszimmer/auth-service:test-0.1.0-snapshot
+    ports:
+      - "9090:9090"

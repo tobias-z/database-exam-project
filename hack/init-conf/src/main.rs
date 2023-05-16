@@ -148,6 +148,14 @@ impl ConfigProcess {
                     config_dir
                 ),
             )?;
+            // ensure that all containers are healthy
+            run_script(
+                format!("{} WaitForAllContainers", self.name),
+                &format!(
+                    "cd {} && docker compose ps -q | xargs -n 1 -P 8 wait-for-container.sh",
+                    config_dir
+                ),
+            )?;
         };
         Ok(())
     }

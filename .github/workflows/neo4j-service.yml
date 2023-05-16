@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - core/neo4jservice/**
+      - .github/workflows/neo4j-service.yml
+  pull_request:
+
+name: Neo4j Service Pipeline
+
+permissions:
+  contents: read
+
+jobs:
+  neo4j-service-pipeline:
+    name: Test and Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Run Neo4j pipeline
+        uses: ./.github/actions/java-pipeline
+        with:
+          working_directory: core/neoj4service
+          run_tests: no
+          java_version: "17"
+          docker_password: ${{ secrets.DOCKER_PASSWORD }}
+          docker_username: tobiaszimmer

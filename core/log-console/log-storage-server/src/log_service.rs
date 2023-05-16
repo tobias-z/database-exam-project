@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use mongodb::bson::Document;
 use rocket::futures::TryStreamExt;
 

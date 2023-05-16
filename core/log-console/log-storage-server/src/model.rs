@@ -15,4 +15,5 @@ pub struct Log {
 pub struct MonitorQuery {
     pub query: String,
     pub interval: String,
+    pub send_to_roles: Vec<String>,
 }

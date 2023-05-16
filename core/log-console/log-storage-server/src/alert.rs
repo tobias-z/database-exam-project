@@ -77,6 +77,11 @@ pub async fn start_alerts() -> anyhow::Result<Alerter> {
         let monitor_query = MonitorQuery {
             query: query.get_str("query")?.to_string(),
             interval: query.get_str("interval")?.to_string(),
+            send_to_roles: query
+                .get_array("send_to_roles")?
+                .iter()
+                .map(|item| item.as_str().unwrap().to_string())
+                .collect(),
         };
         let alerter = alerter.clone();
         tokio::spawn(async move {
@@ -148,7 +153,7 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
                     })
                     .await;
                     if let Err(e) = res {
-                        error!("Unable to send email to {:?}", e);
+                        error!("Error when processing all emails: {:?}", e);
                     }
                 }
             }
@@ -196,9 +201,7 @@ async fn perform_on_emails_of_roles(
 ) -> anyhow::Result<()> {
     let uri = std::env::var("AUTH_SERVER_URL")?;
     let mut client = UserServiceClient::connect(format!("http://{}", uri)).await?;
-
     let roles = tokio_stream::iter(roles).map(|role| EmailRequest { role });
-
     let mut res = client.get_all_emails_of_roles(roles).await?.into_inner();
     while let Some(Ok(email)) = res.next().await {
         on_email(email.email);
@@ -233,7 +236,7 @@ fn send_email(mail: Email) -> anyhow::Result<()> {
 
     match mailer.send(&email) {
         Ok(_) => {
-            info!("Succesfully sent email to {}", mail.to_email);
+            info!("Email sent to {}", mail.to_email);
             Ok(())
         }
         Err(e) => {

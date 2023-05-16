@@ -9,9 +9,15 @@ use lettre::{
     message::header::ContentType, transport::smtp::authentication::Credentials, Message,
     SmtpTransport, Transport,
 };
+use rocket::futures::StreamExt;
 use tokio::time;
 
-use crate::{log_service, model::MonitorQuery, monitor_service};
+use crate::{
+    log_service,
+    model::MonitorQuery,
+    monitor_service,
+    proto::{user_service_client::UserServiceClient, EmailRequest},
+};
 
 /// all messages that can be sent to the alerting system
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -114,9 +120,8 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
                         "Sending alert, because query '{}' found results",
                         monitor_query.query
                     );
-                    let emails = get_user_emails();
-                    for result in results {
-                        for email in &emails {
+                    let res = perform_on_emails_of_roles(vec!["SUPPORT".to_string()], |email| {
+                        for result in results.clone() {
                             let send_email = send_email(Email {
                                 to_name: "Support".to_string(),
                                 to_email: email.clone(),
@@ -140,6 +145,9 @@ async fn monitor(alerter: Alerter, monitor_query: MonitorQuery) {
                                 error!("Unable to send email to {}: {:?}", email, e);
                             }
                         }
+                    }).await;
+                    if let Err(e) = res {
+                        error!("Unable to send email to {:?}", e);
                     }
                 }
             }
@@ -181,8 +189,20 @@ fn get_duration_from_interval(interval: &str) -> anyhow::Result<Duration> {
     }
 }
 
-fn get_user_emails() -> Vec<String> {
-    vec!["cph-tz11@cphbusiness.dk".to_string()]
+async fn perform_on_emails_of_roles(
+    roles: Vec<String>,
+    on_email: impl Fn(String),
+) -> anyhow::Result<()> {
+    let uri = std::env::var("STORAGE_SERVER_URI")?;
+    let mut client = UserServiceClient::connect(format!("http://{}", uri)).await?;
+
+    let roles = tokio_stream::iter(roles).map(|role| EmailRequest { role });
+
+    let mut res = client.get_all_emails_of_roles(roles).await?.into_inner();
+    while let Some(Ok(email)) = res.next().await {
+        on_email(email.email);
+    }
+    Ok(())
 }
 
 struct Email {

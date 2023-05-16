@@ -17,6 +17,7 @@ use gather::start_log_gathering_server;
 
 pub mod proto {
     tonic::include_proto!("logconsole.proto");
+    tonic::include_proto!("dk.groupa.proto");
 }
 
 #[rocket::main]

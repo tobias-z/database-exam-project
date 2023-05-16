@@ -1,0 +1,37 @@
+syntax= "proto3";
+
+package dk.groupa.proto;
+
+option java_multiple_files = true;
+
+service AuthService {
+  rpc isUserAuthenticatedWithRole(AuthRequest) returns (AuthResponse);
+}
+
+message AuthRequest {
+    string authToken = 1;
+    string role = 2;
+}
+
+message AuthResponse {
+    optional User user = 1;
+    bool isAuthenticated = 2;
+}
+
+message User {
+    int64 id = 1;
+    string email = 2;
+    string role = 3;
+}
+
+service UserService {
+    rpc getAllEmailsOfRoles(stream EmailRequest) returns (stream EmailResponse);
+}
+
+message EmailRequest {
+  string role = 1;
+}
+
+message EmailResponse {
+  string email = 1;
+}

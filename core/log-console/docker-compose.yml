@@ -17,3 +17,6 @@ services:
     image: tobiaszimmer/auth-service:test-0.1.0-snapshot
     ports:
       - "9090:9090"
+    environment:
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379

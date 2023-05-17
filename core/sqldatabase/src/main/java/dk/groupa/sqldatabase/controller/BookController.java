@@ -35,4 +35,10 @@ public class BookController {
         Long userId = Long.valueOf(1);     //TODO: Replace med Mads auth service
         return reserveService.Push(userId, bookId);
     }
+
+    @PostMapping("/{bookId}/number")
+    public int getNumberInQueue(@NotNull @PathVariable("bookId") Long bookId) {
+        Long userId = Long.valueOf(1);
+        return reserveService.NumberInQue(bookId, userId);
+    }
 }

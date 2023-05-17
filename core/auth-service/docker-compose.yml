@@ -6,3 +6,12 @@ services:
     restart: always
     ports:
       - '6379:6379'
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+#    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: thisIsSuperStrong1234
+      SA_PASSWORD: thisIsSuperStrong1234
+    ports:
+      - "1433:1433"

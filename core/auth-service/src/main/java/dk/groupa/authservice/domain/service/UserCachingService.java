@@ -10,13 +10,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserCachingService {
 
-    private static final Set<String> EMAILS = Set.of("cph-tz11@cphbusiness.dk");
-
     private final RedisTemplate<String, String> redisTemplate;
 
     public Set<String> getEmailsOfRole(String role) {
-        return EMAILS;
-//        return redisTemplate.opsForSet().members(role);
+        return redisTemplate.opsForSet().members(role);
     }
 
     public void saveEmailsInRole(String role, List<String> emails) {

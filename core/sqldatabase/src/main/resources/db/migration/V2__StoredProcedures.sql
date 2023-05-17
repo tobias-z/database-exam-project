@@ -150,17 +150,16 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReserveBook]
                 DECLARE @user_role VARCHAR(20);
                 SET @user_role = (SELECT role FROM [user] WHERE id = @user_id);
 
-                IF @user_role = 'free'
+                DECLARE @is_subscribed BIT
+                SET @is_subscribed = 0;
+                IF @user_role = 'subscribed'
                     BEGIN
-                        INSERT INTO borrow_queue (user_id, book_id, enqueued_at, is_subscribed) values (@user_id, @book_id, (Select Getdate()), 0);
-                        SELECT * FROM borrow_queue WHERE id = SCOPE_IDENTITY();
+                        SET @is_subscribed = 1;
                     END
-                ELSE
-                    BEGIN
-                        INSERT INTO borrow_queue (user_id, book_id, enqueued_at, is_subscribed) values (@user_id, @book_id, (Select Getdate()), 1);
-                        SELECT * FROM borrow_queue WHERE id = SCOPE_IDENTITY();
-                    END
-                END
+
+                INSERT INTO borrow_queue (user_id, book_id, enqueued_at, is_subscribed) values (@user_id, @book_id, (Select Getdate()), @is_subscribed);
+                SELECT * FROM borrow_queue WHERE id = SCOPE_IDENTITY();
+            END
         COMMIT TRANSACTION reserveBook
         END TRY
 

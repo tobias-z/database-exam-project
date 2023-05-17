@@ -14,11 +14,11 @@ public class LoanService {
         this.reserveService = reserveService;
     }
 
-    public Loan BorrowBook(int userId, int bookId) {
+    public Loan BorrowBook(Long userId, Long bookId) {
         return loanRepository.borrowBook(userId, bookId);
     }
 
-    public Loan ReturnBook(int userId, int bookId) {
+    public Loan ReturnBook(Long userId, Long bookId) {
         Loan loan = loanRepository.returnBook(userId, bookId);
         reserveService.Pop(bookId);
         return loan;

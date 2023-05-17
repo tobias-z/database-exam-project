@@ -18,9 +18,9 @@ public class BorrowQueue {
     @Id
     private Long id;
     @Column(name = "user_id")
-    private int userId;
+    private Long userId;
     @Column(name = "book_id")
-    private int bookId;
+    private Long bookId;
     @Column(name = "enqueued_at")
     private Date enqueuedAt;
     @Column(name = "is_subscribed")

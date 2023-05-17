@@ -19,20 +19,20 @@ public class BookController {
     }
 
     @PostMapping("/{bookId}/borrow")
-    public Loan borrowBook(@NotNull @PathVariable("bookId") Integer bookId) {
-        int userId = 1;     //TODO: Replace med Mads auth service
+    public Loan borrowBook(@NotNull @PathVariable("bookId") Long bookId) {
+        Long userId = Long.valueOf(1);     //TODO: Replace med Mads auth service
         return loanService.BorrowBook(bookId, userId);
     }
 
     @PostMapping("/{bookId}/return")
-    public Loan returnBook(@NotNull @PathVariable("bookId") Integer bookId) {
-        int userId = 1;     //TODO: Replace med Mads auth service
+    public Loan returnBook(@NotNull @PathVariable("bookId") Long bookId) {
+        Long userId = Long.valueOf(1);     //TODO: Replace med Mads auth service
         return loanService.ReturnBook(bookId, userId);
     }
 
     @PostMapping("/{bookId}/reserve")
-    public WaitingBorrow reserveBook(@NotNull @PathVariable("bookId") Integer bookId) {
-        int userId = 1;     //TODO: Replace med Mads auth service
+    public WaitingBorrow reserveBook(@NotNull @PathVariable("bookId") Long bookId) {
+        Long userId = Long.valueOf(1);     //TODO: Replace med Mads auth service
         return reserveService.Push(userId, bookId);
     }
 }

@@ -14,7 +14,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 @Service
 public class ReserveService {
     private final ReserveRepository reserveRepository;
-    private static final ConcurrentHashMap<Integer, PriorityBlockingQueue<WaitingBorrow>> reserveQueue = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Long, PriorityBlockingQueue<WaitingBorrow>> reserveQueue = new ConcurrentHashMap<>();
 
 
     public ReserveService(ReserveRepository reserveRepository) {
@@ -28,17 +28,17 @@ public class ReserveService {
         }
     }
 
-    public Loan UpdateBorrowQueueDB(int borrowQueueId, int userId, int bookId) {
+    public Loan UpdateBorrowQueueDB(Long borrowQueueId, Long userId, Long bookId) {
         Loan loan = reserveRepository.borrowReserve(borrowQueueId, userId, bookId);
         return loan;
     }
 
-    public WaitingBorrow Push(int userId, int bookId) {
+    public WaitingBorrow Push(Long userId, Long bookId) {
         BorrowQueue borrowQueue = reserveRepository.reserveBook(userId, bookId);
         return PushToPrioQue(bookId, borrowQueue);
     }
 
-    private static WaitingBorrow PushToPrioQue(int bookId, BorrowQueue borrowQueue) {
+    private static WaitingBorrow PushToPrioQue(Long bookId, BorrowQueue borrowQueue) {
         WaitingBorrow waitingBorrow = new WaitingBorrow(borrowQueue.getId(), borrowQueue.isSubscribed(), borrowQueue.getEnqueuedAt(), borrowQueue.getUserId());
         PriorityBlockingQueue<WaitingBorrow> prioQue = new PriorityBlockingQueue<>();
 
@@ -52,14 +52,14 @@ public class ReserveService {
         return waitingBorrow;
     }
 
-    public WaitingBorrow Pop(int bookId) {
+    public WaitingBorrow Pop(Long bookId) {
         WaitingBorrow waitingBorrow;
         PriorityBlockingQueue<WaitingBorrow> prioQue = reserveQueue.get(bookId);
         if (prioQue == null) {
              return null;
         }
         waitingBorrow = prioQue.remove();
-        UpdateBorrowQueueDB(waitingBorrow.getBorrowQueueId().intValue(), waitingBorrow.getUserId(), bookId);
+        UpdateBorrowQueueDB(waitingBorrow.getBorrowQueueId(), waitingBorrow.getUserId(), bookId);
         return waitingBorrow ;
     }
 

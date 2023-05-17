@@ -29,8 +29,7 @@ public class ReserveService {
     }
 
     public Loan UpdateBorrowQueueDB(Long borrowQueueId, Long userId, Long bookId) {
-        Loan loan = reserveRepository.borrowReserve(borrowQueueId, userId, bookId);
-        return loan;
+        return reserveRepository.borrowReserve(borrowQueueId, userId, bookId);
     }
 
     public WaitingBorrow Push(Long userId, Long bookId) {

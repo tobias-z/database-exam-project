@@ -18,11 +18,13 @@ public class WaitingBorrow implements Comparable<WaitingBorrow>{
     private Long userId;
 
     @Override
-    public int compareTo(WaitingBorrow o) {     //TODO:
+    public int compareTo(WaitingBorrow o) {
         if (this.isSubscribed && !o.isSubscribed) {
             return 1;
-            }
-
-        return 0;
+        } else if (!this.isSubscribed && o.isSubscribed) {
+            return -1;
+        } else {
+            return this.enqueuedAt.compareTo(o.enqueuedAt);
+        }
     }
 }

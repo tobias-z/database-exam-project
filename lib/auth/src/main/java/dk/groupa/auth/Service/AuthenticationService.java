@@ -24,7 +24,7 @@ public class AuthenticationService {
         Optional<String[]> decoded = authTokenDecode.decodeBase64Token(authToken);
 
         if(decoded.isEmpty()) {
-            return new AuthDTO(Optional.of(new User()), false);
+            return new AuthDTO(Optional.empty(), false);
         }
 
         Optional<User> user = authenticationRepo.findUserByEmailAndPassword(decoded.get()[0], decoded.get()[1]);

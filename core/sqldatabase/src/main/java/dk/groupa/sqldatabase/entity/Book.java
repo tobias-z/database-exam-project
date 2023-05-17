@@ -17,5 +17,4 @@ import lombok.Setter;
 public class Book {
     @Id
     private long id;
-
 }

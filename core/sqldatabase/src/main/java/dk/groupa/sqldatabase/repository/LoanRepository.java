@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LoanRepository extends JpaRepository<Loan, Long> {
     @Query(value = "EXEC sp_BorrowBook @user_id = :user_id, @book_id = :book_id", nativeQuery = true)
-    Loan borrowBook(@Param("user_id") int user_id, @Param("book_id") int book_id);
+    Loan borrowBook(@Param("user_id") Long user_id, @Param("book_id") Long book_id);
 
     @Query(value = "EXEC sp_ReturnBook @user_id = :user_id, @book_id = :book_id", nativeQuery = true)
-    Loan returnBook(@Param("user_id") int user_id, @Param("book_id") int book_id);
+    Loan returnBook(@Param("user_id") Long user_id, @Param("book_id") Long book_id);
 }

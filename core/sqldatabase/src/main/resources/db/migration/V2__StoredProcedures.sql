@@ -116,13 +116,16 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReturnBook]
     AS
         BEGIN TRY
         BEGIN TRANSACTION returnBook
-                BEGIN
-                    DECLARE @loanId BIGINT;
-                    UPDATE loans SET returned_at = (Select GETDATE()) WHERE user_id = @user_id and book_id = @book_id;
-                    SET @loanId = SCOPE_IDENTITY();
-                    UPDATE book SET available = available + 1 WHERE id = @book_id;
-                    SELECT * FROM [loans] WHERE id = @loanId;
-                END
+            BEGIN
+                DECLARE @loanId BIGINT;
+
+                WITH q AS (SELECT TOP 1 * FROM loans WHERE user_id = @user_id and book_id = @book_id and returned_at is null ORDER BY id ASC)
+                UPDATE q SET returned_at = (SELECT GETDATE());
+
+                SET @loanId = SCOPE_IDENTITY();
+                UPDATE book SET available = available + 1 WHERE id = @book_id;
+                SELECT * FROM [loans] WHERE id = @loanId;
+            END
         COMMIT TRANSACTION returnBook
         END TRY
 
@@ -144,9 +147,19 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReserveBook]
         BEGIN TRY
         BEGIN TRANSACTION reserveBook
             BEGIN
-                INSERT INTO borrow_queue (user_id, book_id, enqueued_at) values (@user_id, @book_id, (Select Getdate()));
-            END
+                DECLARE @user_role VARCHAR(20);
+                SET @user_role = (SELECT role FROM [user] WHERE id = @user_id);
 
+                DECLARE @is_subscribed BIT
+                SET @is_subscribed = 0;
+                IF @user_role = 'subscribed'
+                    BEGIN
+                        SET @is_subscribed = 1;
+                    END
+
+                INSERT INTO borrow_queue (user_id, book_id, enqueued_at, is_subscribed) values (@user_id, @book_id, (Select Getdate()), @is_subscribed);
+                SELECT * FROM borrow_queue WHERE id = SCOPE_IDENTITY();
+            END
         COMMIT TRANSACTION reserveBook
         END TRY
 
@@ -154,6 +167,35 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReserveBook]
             ROLLBACK TRANSACTION reserveBook;
             BEGIN
                 RAISERROR ('failed to insert reservation', 1, 1);
+            END
+        END CATCH
+GO
+
+--Create procedure for next user in queue to borrow book
+CREATE OR ALTER PROCEDURE [dbo].[sp_NextReserve]
+
+    @borrow_queue_id BIGINT,
+    @user_id BIGINT,
+    @book_id BIGINT
+
+    AS
+        BEGIN TRY
+        BEGIN TRANSACTION nextReserve
+            BEGIN
+                DELETE FROM borrow_queue WHERE id = @borrow_queue_id;
+
+                EXECUTE [dbo].[sp_BorrowBook]
+                    @user_id
+                    ,@book_id
+
+            END
+        COMMIT TRANSACTION nextReserve
+        END TRY
+
+        BEGIN CATCH
+        ROLLBACK TRANSACTION nextReserve;
+            BEGIN
+                RAISERROR ('failed to insert next reservation', 1, 1);
             END
         END CATCH
 GO

@@ -34,4 +34,5 @@ DROP PROCEDURE [dbo].[sp_ReserveBook]
 GO
 DROP PROCEDURE [dbo].[sp_ReturnBook]
 GO
-
+DROP PROCEDURE [dbo].[sp_NextReserve]
+GO

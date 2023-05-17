@@ -7,18 +7,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoanService {
     private final LoanRepository loanRepository;
-    private final BookService bookService;
+    private final ReserveService reserveService;
 
-    public LoanService(LoanRepository loanRepository, BookService bookService) {
+    public LoanService(LoanRepository loanRepository, ReserveService reserveService) {
         this.loanRepository = loanRepository;
-        this.bookService = bookService;
+        this.reserveService = reserveService;
     }
 
-    public Loan BorrowBook(int bookId, int userId) {
+    public Loan BorrowBook(Long userId, Long bookId) {
         return loanRepository.borrowBook(userId, bookId);
     }
 
-    public Loan ReturnBook(int bookId, int userId) {
-        return loanRepository.returnBook(userId, bookId);
+    public Loan ReturnBook(Long userId, Long bookId) {
+        Loan loan = loanRepository.returnBook(userId, bookId);
+        reserveService.Pop(bookId);
+        return loan;
     }
 }

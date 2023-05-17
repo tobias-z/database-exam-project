@@ -62,8 +62,8 @@ runs:
           lib_name=$(basename $path_to_lib)
           echo "Found library $lib_name in $path_to_lib"
           # the library name is in the REQUIRES string
-          case "$lib_name" in
-            *$REQUIRES*)
+          case "$REQUIRES" in
+            *$lib_name*)
               echo "Installing lib $lib_name as it is required"
               cd $path_to_lib
               # install the library and ignore test compilation and failure

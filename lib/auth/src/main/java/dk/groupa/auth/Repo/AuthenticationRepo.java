@@ -16,4 +16,7 @@ public interface AuthenticationRepo extends JpaRepository<User, Long> {
 
     @Query(value = "EXEC sp_CreateUser @email = :email, @password = :password, @role = :role", nativeQuery = true)
     User createUser(@Param("email") String email, @Param("password") String password, @Param("role") String role);
+
+    @Query(value = "SELECT email FROM dbo.[user] WHERE role = :email")
+    List<String> getEmailsByRole(@Param("role") String role);
 }

@@ -19,12 +19,9 @@ pub async fn create_monitor_query(monitor_query: &MonitorQuery) -> mongodb::erro
 }
 
 pub async fn delete_and_get_monitor_query(id: &str) -> anyhow::Result<MonitorQuery> {
-    let client = connection::get_client()
+    let db = connection::get_connection()
         .await
         .expect("unable to connect to mongodb");
-    let db = client.database("logs");
-    let mut session = client.start_session(None).await.unwrap();
-    session.start_transaction(None).await.unwrap();
     let Ok(Some(monitor_query)) = get_monitor_query_by_id(&db, id).await else {
         info!("No MonitorQuery found with id: {}", &id);
         return Err(anyhow!("No monitor query found with id {}", &id));
@@ -33,7 +30,6 @@ pub async fn delete_and_get_monitor_query(id: &str) -> anyhow::Result<MonitorQue
         error!("Unable to delete MonitorQuery with id: {}. {}", id, e);
         return Err(anyhow!(e.to_string()));
     };
-    session.commit_transaction().await.unwrap();
     Ok(monitor_query)
 }
 

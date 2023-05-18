@@ -24,8 +24,6 @@ pub async fn delete_and_get_monitor_query(id: &str) -> anyhow::Result<MonitorQue
         .expect("unable to connect to mongodb");
     let db = client.database("logs");
     let mut session = client.start_session(None).await.unwrap();
-    // Ensure that if we do find a MonitorQuery it will not be deleted in some other process in the
-    // meantime (ACID)
     session.start_transaction(None).await.unwrap();
     let Ok(Some(monitor_query)) = get_monitor_query_by_id(&db, id).await else {
         info!("No MonitorQuery found with id: {}", &id);

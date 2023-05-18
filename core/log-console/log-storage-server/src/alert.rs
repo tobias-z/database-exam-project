@@ -46,7 +46,10 @@ impl Alerter {
     }
 
     pub fn alert(&self, msg: AlertMessage) -> anyhow::Result<()> {
-        self.alerts.lock().unwrap().insert(msg.clone());
+        if let AlertMessage::Drop(_) = msg {
+            // If a drop has been issued, put it in the set of droppable processes
+            self.alerts.lock().unwrap().insert(msg.clone());
+        }
         self.tx.send(msg)?;
         Ok(())
     }

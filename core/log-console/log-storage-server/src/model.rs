@@ -10,3 +10,10 @@ pub struct Log {
     /// Integers also fill less in memory
     pub level: Option<u8>,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone, Hash, PartialEq, Eq)]
+pub struct MonitorQuery {
+    pub query: String,
+    pub interval: String,
+    pub send_to_roles: Vec<String>,
+}

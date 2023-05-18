@@ -55,17 +55,22 @@ runs:
       env:
         REQUIRES: ${{ inputs.requires }}
       run: |
+        echo "Installing required libraries"
         # any directory in the directory and sub directories that contain a pom.xml, is something that could be a library
         java_libs=$(find . -type f -name 'pom.xml' | sed -r 's|/[^/]+$||' | uniq | sed 's/.\///')
         for path_to_lib in $java_libs; do
           lib_name=$(basename $path_to_lib)
+          echo "Found library $lib_name in $path_to_lib"
           # the library name is in the REQUIRES string
-          if [[ "$lib_name" == *"$REQUIRES"* ]]; then
-            cd $path_to_lib
-            # install the library and ignore test compilation and failure
-            mvn install -Dmaven.test.skip=true
-            cd -
-          fi
+          case "$REQUIRES" in
+            *$lib_name*)
+              echo "Installing lib $lib_name as it is required"
+              cd $path_to_lib
+              # install the library and ignore test compilation and failure
+              mvn install -Dmaven.test.skip=true
+              cd -
+              ;;
+          esac
         done
 
     - name: Run tests

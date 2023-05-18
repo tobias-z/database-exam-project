@@ -40,4 +40,8 @@ public class AuthenticationService {
     public User createUser(String email, String password, String role) {
         return authenticationRepo.createUser(email, password, role);
     }
+
+    public List<String> getEmailsOfRole(String role) {
+        return authenticationRepo.getEmailsByRole(role);
+    }
 }

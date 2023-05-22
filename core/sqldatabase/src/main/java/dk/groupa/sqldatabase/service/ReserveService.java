@@ -62,7 +62,7 @@ public class ReserveService {
         return waitingBorrow ;
     }
 
-    public int NumberInQue(Long bookId, Long userId) {
+    public int NumberInQue(Long userId, Long bookId) {
         PriorityBlockingQueue<WaitingBorrow> prioQue = reserveQueue.get(bookId);
         int number = 0;
         for (WaitingBorrow w: prioQue) {

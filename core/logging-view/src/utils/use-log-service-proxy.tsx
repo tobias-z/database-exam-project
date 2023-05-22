@@ -10,12 +10,19 @@ type ProxyError = {
 export default function useLogServiceProxy<T>(
     key: string,
     path: string,
-    transformationFn?: (data: T) => T
+    username: string,
+    password: string,
+    transformationFn?: (data: T) => T,
 ) {
     return useQuery<T, ProxyError>(
         `proxy-${key}`,
         async () => {
-            return fetch(`/api/proxy?path=${path}`).then(async res => {
+            const auth = btoa(`${username}:${password}`);
+            return fetch(`/api/proxy?path=${path}`, {
+                headers: {
+                    "Authorization": `Basic ${auth}`
+                }
+            }).then(async res => {
                 if (res.status > 400) {
                     return Promise.reject(await res.json());
                 }

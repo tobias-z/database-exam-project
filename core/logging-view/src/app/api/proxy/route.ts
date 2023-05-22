@@ -15,21 +15,24 @@ export async function GET(request: Request) {
     }
 
     try {
-        const res = await fetch(
-            `${logServiceUrl}${path}`,
-            Object.fromEntries(request.headers.entries())
-        );
+        const res = await fetch(`${logServiceUrl}${path}`, {
+            headers: {
+                Authorization: request.headers.get("Authorization") || "",
+            },
+        });
 
         if (res.status < 400) {
             return NextResponse.json(await res.json());
+        } else if (res.status === 401) {
+            return respond(401, { message: "Unauthorized" });
         }
-        return respond(res.status, await res.json())
+        return respond(res.status, await res.json());
     } catch (_) {
         return respond(400, "invalid request");
     }
 }
 
-function respond(status: number, message: string) {
+function respond(status: number, message: any) {
     return new Response(JSON.stringify({ message }), {
         status,
         headers: {

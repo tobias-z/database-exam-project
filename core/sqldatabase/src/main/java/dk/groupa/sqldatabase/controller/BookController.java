@@ -1,5 +1,6 @@
 package dk.groupa.sqldatabase.controller;
 
+import dk.groupa.auth.Model.AuthDTO;
 import dk.groupa.auth.Service.AuthenticationService;
 import dk.groupa.sqldatabase.entity.Loan;
 import dk.groupa.sqldatabase.entity.WaitingBorrow;
@@ -7,6 +8,7 @@ import dk.groupa.sqldatabase.service.LoanService;
 import dk.groupa.sqldatabase.service.ReserveService;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,27 +25,38 @@ public class BookController {
     }
 
     @PostMapping("/{bookId}/borrow")
-    public Loan borrowBook(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
-        authenticationService.isUserAuthenticatedWithRole(token, )
-        Long userId = Long.valueOf(1);     //TODO: Replace med Mads auth service
-        return loanService.BorrowBook(bookId, userId);
+    public ResponseEntity<Loan> borrowBook(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        AuthDTO authDTO = authenticationService.isUserAuthenticatedWithRole(token, "free", "subscribed");
+        if (!authDTO.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(loanService.BorrowBook(authDTO.getUser().get().getId(), bookId));
     }
 
     @PostMapping("/{bookId}/return")
-    public Loan returnBook(@NotNull @PathVariable("bookId") Long bookId) {
-        Long userId = Long.valueOf(1);     //TODO: Replace med Mads auth service
-        return loanService.ReturnBook(bookId, userId);
+    public ResponseEntity<Loan> returnBook(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        AuthDTO authDTO = authenticationService.isUserAuthenticatedWithRole(token, "free", "subscribed");
+        if (!authDTO.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(loanService.ReturnBook(authDTO.getUser().get().getId(), bookId));
     }
 
     @PostMapping("/{bookId}/reserve")
-    public WaitingBorrow reserveBook(@NotNull @PathVariable("bookId") Long bookId) {
-        Long userId = Long.valueOf(1);     //TODO: Replace med Mads auth service
-        return reserveService.Push(userId, bookId);
+    public ResponseEntity<WaitingBorrow> reserveBook(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        AuthDTO authDTO = authenticationService.isUserAuthenticatedWithRole(token, "free", "subscribed");
+        if (!authDTO.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(reserveService.Push(authDTO.getUser().get().getId(), bookId));
     }
 
     @PostMapping("/{bookId}/number")
-    public int getNumberInQueue(@NotNull @PathVariable("bookId") Long bookId) {
-        Long userId = Long.valueOf(1);
-        return reserveService.NumberInQue(bookId, userId);
+    public ResponseEntity<Integer> getNumberInQueue(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        AuthDTO authDTO = authenticationService.isUserAuthenticatedWithRole(token, "free", "subscribed");
+        if (!authDTO.isAuthenticated()) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(reserveService.NumberInQue(authDTO.getUser().get().getId(), bookId));
     }
 }

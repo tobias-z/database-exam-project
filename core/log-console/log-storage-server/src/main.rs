@@ -6,6 +6,7 @@ pub mod model;
 pub mod monitor_service;
 pub mod query_lang;
 pub mod rest;
+pub mod auth;
 
 #[macro_use]
 extern crate log;

@@ -1,5 +1,7 @@
 use mongodb::bson::Document;
 use rocket::http::Status;
+use rocket::request::{FromRequest, Outcome};
+use rocket::{request, Request};
 use rocket::{
     response::status::Custom,
     routes,
@@ -8,8 +10,9 @@ use rocket::{
 };
 
 use crate::alert::AlertMessage;
+use crate::proto::User;
 use crate::{alert::Alerter, model::MonitorQuery};
-use crate::{log_service, monitor_service};
+use crate::{auth, log_service, monitor_service};
 
 type ErrorResponse = Custom<Json<WebError>>;
 
@@ -37,13 +40,53 @@ impl From<WebError> for ErrorResponse {
     }
 }
 
+struct AuthedUser(User);
+
+#[derive(Debug)]
+enum ApiAuthError {
+    Missing,
+    Unauthorized,
+}
+
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for AuthedUser {
+    type Error = ApiAuthError;
+
+    async fn from_request(request: &'r Request<'_>) -> request::Outcome<Self, Self::Error> {
+        let token = request.headers().get_one("Authorization");
+        let uri = request.uri().path().to_string();
+        match token {
+            Some(token) => match auth::is_role(token, "empolyee").await {
+                Ok(user) => {
+                    info!(
+                        "Successful login for user {} with email {} on uri {}",
+                        user.id, user.email, uri
+                    );
+                    Outcome::Success(AuthedUser(user))
+                }
+                Err(_) => {
+                    info!("Invalid login attempt to endpoint: {}", uri);
+                    Outcome::Failure((Status::Unauthorized, ApiAuthError::Unauthorized))
+                }
+            },
+            None => {
+                info!(
+                    "No auth header was provided to an authenticated endpoint: {}",
+                    uri
+                );
+                Outcome::Failure((Status::Unauthorized, ApiAuthError::Missing))
+            }
+        }
+    }
+}
+
 #[get("/ping")]
 async fn ping() -> String {
     "pong".to_string()
 }
 
 #[get("/search?<q>")]
-async fn search(q: &str) -> WebResult<Json<Vec<Document>>> {
+async fn search(q: &str, _user: AuthedUser) -> WebResult<Json<Vec<Document>>> {
     info!("search with query: {}", q);
     match log_service::run_query(q).await {
         Ok(parsed_res) => Ok(Json(parsed_res)),
@@ -59,6 +102,7 @@ async fn search(q: &str) -> WebResult<Json<Vec<Document>>> {
 async fn create_monitor_query(
     monitor_query: Json<MonitorQuery>,
     alerter: &State<Alerter>,
+    _user: AuthedUser,
 ) -> WebResult<Json<bool>> {
     info!("Creating new montior query {:?}", monitor_query.0);
     let create = monitor_service::create_monitor_query(&monitor_query).await;
@@ -80,7 +124,7 @@ async fn create_monitor_query(
 }
 
 #[get("/monitor-query")]
-async fn get_all_monitor_queries() -> WebResult<Json<Vec<Document>>> {
+async fn get_all_monitor_queries(_user: AuthedUser) -> WebResult<Json<Vec<Document>>> {
     match monitor_service::get_all_monitor_queries().await {
         Ok(all) => Ok(Json(all)),
         Err(e) => Err(WebError::new(Status::InternalServerError, e.to_string()).into()),
@@ -88,7 +132,11 @@ async fn get_all_monitor_queries() -> WebResult<Json<Vec<Document>>> {
 }
 
 #[delete("/monitor-query/<id>")]
-async fn delete_monitor_query(id: String, alerter: &State<Alerter>) -> WebResult<Json<bool>> {
+async fn delete_monitor_query(
+    id: String,
+    alerter: &State<Alerter>,
+    _user: AuthedUser,
+) -> WebResult<Json<bool>> {
     let monitor_query = match monitor_service::delete_and_get_monitor_query(&id).await {
         Ok(query) => query,
         Err(e) => return Err(WebError::new(Status::InternalServerError, e.to_string()).into()),

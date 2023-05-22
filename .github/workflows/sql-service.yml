@@ -24,7 +24,7 @@ jobs:
         uses: ./.github/actions/java-pipeline
         with:
           working_directory: core/sqldatabase
-	        requires: auth
+          requires: auth
           run_tests: no
           java_version: "17"
           docker_password: ${{ secrets.DOCKER_PASSWORD }}

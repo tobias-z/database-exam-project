@@ -1,10 +1,12 @@
 package dk.groupa.sqldatabase.controller;
 
+import dk.groupa.auth.Service.AuthenticationService;
 import dk.groupa.sqldatabase.entity.Loan;
 import dk.groupa.sqldatabase.entity.WaitingBorrow;
 import dk.groupa.sqldatabase.service.LoanService;
 import dk.groupa.sqldatabase.service.ReserveService;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,14 +14,17 @@ import org.springframework.web.bind.annotation.*;
 public class BookController {
     private final LoanService loanService;
     private final ReserveService reserveService;
+    private final AuthenticationService authenticationService;
 
-    public BookController(LoanService loanService, ReserveService reserveService) {
+    public BookController(LoanService loanService, ReserveService reserveService, AuthenticationService authenticationService) {
         this.loanService = loanService;
         this.reserveService = reserveService;
+        this.authenticationService = authenticationService;
     }
 
     @PostMapping("/{bookId}/borrow")
-    public Loan borrowBook(@NotNull @PathVariable("bookId") Long bookId) {
+    public Loan borrowBook(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
+        authenticationService.isUserAuthenticatedWithRole(token, )
         Long userId = Long.valueOf(1);     //TODO: Replace med Mads auth service
         return loanService.BorrowBook(bookId, userId);
     }

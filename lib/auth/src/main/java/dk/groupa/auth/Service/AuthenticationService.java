@@ -20,7 +20,7 @@ public class AuthenticationService {
     @Autowired
     AuthenticationRepo authenticationRepo;
 
-    public AuthDTO isUserAuthenticatedWithRole(String authToken, String role) {
+    public AuthDTO isUserAuthenticatedWithRole(String authToken, String... roles) {
         Optional<String[]> decoded = authTokenDecode.decodeBase64Token(authToken);
 
         if(decoded.isEmpty()) {
@@ -30,8 +30,10 @@ public class AuthenticationService {
         Optional<User> user = authenticationRepo.findUserByEmailAndPassword(decoded.get()[0], decoded.get()[1]);
 
         if(user.isPresent()) {
-            if(Objects.equals(user.get().getRole(), role)) {
-                return new AuthDTO(user, true);
+            for (String role : roles) {
+                if(Objects.equals(user.get().getRole(), role)) {
+                    return new AuthDTO(user, true);
+                }
             }
         }
         return new AuthDTO(user, false);

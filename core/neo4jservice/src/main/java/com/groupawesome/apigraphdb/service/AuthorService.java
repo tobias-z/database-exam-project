@@ -14,4 +14,6 @@ public class AuthorService {
     AuthorRepository authorRepository;
 
     public Collection<Author> getAll() { return authorRepository.getAllAuthors(); }
+
+    public Collection<Author> getByName(String name) { return authorRepository.getAuthorByName(name); }
 }

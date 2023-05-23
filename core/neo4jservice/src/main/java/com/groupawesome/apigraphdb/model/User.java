@@ -1,20 +1,20 @@
 package com.groupawesome.apigraphdb.model;
 
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
 
 import java.util.List;
 
-@NodeEntity
+@Node
 public class User {
 
-    @GraphId
+    @Id
     private Long id;
-    private String name;
-    private Integer age;
+    private String email;
+    private String role;
 
-    @Relationship(type = "RATED")
+    @Relationship(type = "BORROWED")
     private List<Book> bookList;
 
     public User() {
@@ -25,11 +25,15 @@ public class User {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getEmail() {
+        return email;
     }
 
-    public Integer getAge() {
-        return age;
+    public String getRole() {
+        return role;
+    }
+
+    public List<Book> getBookList() {
+        return bookList;
     }
 }

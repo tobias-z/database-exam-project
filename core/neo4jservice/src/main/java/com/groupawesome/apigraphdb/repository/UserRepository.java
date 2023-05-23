@@ -8,6 +8,6 @@ import java.util.Collection;
 
 public interface UserRepository extends Neo4jRepository<User, Long> {
 
-    @Query("MATCH (u:User)-[r:RATED]->(b:Book) return u,r,b")
+    @Query("MATCH (u:User)-[:BORROWED]->(b:Book) return u, b")
     Collection<User> getAllUsers();
 }

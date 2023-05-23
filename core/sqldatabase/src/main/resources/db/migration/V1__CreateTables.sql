@@ -14,8 +14,8 @@ GO
 --Create table for books
 CREATE TABLE [dbo].[book](
 	[id] [bigint] IDENTITY(1,1) NOT NULL,
-	[title] [varchar](100) NOT NULL,
-	[description] [varchar](255) NULL,
+	[title] [varchar](MAX) NOT NULL,
+	[description] [text] NULL,
 	[author_name] [varchar](255) NOT NULL,
 	[language] [varchar](100) NOT NULL,
 	[rating_score] [decimal](2, 0) NULL,

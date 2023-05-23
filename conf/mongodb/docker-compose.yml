@@ -11,16 +11,6 @@ networks:
     external: true
 
 services:
-  mongodb:
-    image: mongo:6.0.5
-    ports:
-      - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=user
-      - MONGO_INITDB_ROOT_PASSWORD=pass
-    networks:
-      - prod
-
   # config
   mongo-config1:
     image: mongo:6.0.5

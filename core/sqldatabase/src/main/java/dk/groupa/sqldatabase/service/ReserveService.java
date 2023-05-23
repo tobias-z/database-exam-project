@@ -5,6 +5,7 @@ import dk.groupa.sqldatabase.entity.Loan;
 import dk.groupa.sqldatabase.entity.WaitingBorrow;
 import dk.groupa.sqldatabase.repository.ReserveRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 @Service
+@Slf4j
 public class ReserveService {
     private final ReserveRepository reserveRepository;
     private static final ConcurrentHashMap<Long, PriorityBlockingQueue<WaitingBorrow>> reserveQueue = new ConcurrentHashMap<>();
@@ -47,7 +49,9 @@ public class ReserveService {
         } else {
             prioQue.put(waitingBorrow);
             reserveQueue.put(bookId, prioQue);
+            log.info("Created new borrowQueue for book ID {}", bookId);
         }
+        log.info("User {} was added to borrowQueue {} with book ID {}", waitingBorrow.getUserId(), waitingBorrow.getBorrowQueueId(), bookId);
         return waitingBorrow;
     }
 
@@ -59,6 +63,7 @@ public class ReserveService {
         }
         waitingBorrow = prioQue.remove();
         UpdateBorrowQueueDB(waitingBorrow.getBorrowQueueId(), waitingBorrow.getUserId(), bookId);
+        log.info("User {} was removed from borrowQueue {} with book ID {}", waitingBorrow.getUserId(), waitingBorrow.getBorrowQueueId(), bookId);
         return waitingBorrow ;
     }
 

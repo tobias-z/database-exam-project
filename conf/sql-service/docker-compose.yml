@@ -21,6 +21,12 @@ services:
       SQL_DATABASE_FLYWAY_USERNAME: sa
       SQL_DATABASE_FLYWAY_PASSWORD: thisIsSuperStrong1234
       SQL_DATABASE_FLYWAY_URL: "jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true"
+    healthcheck:
+      test: ["curl", "localhost:8080/ping"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
     ports:
       - '8081:8080'
     logging: *default-logging

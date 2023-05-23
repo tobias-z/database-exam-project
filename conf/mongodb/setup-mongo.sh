@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 docker-compose exec mongo-config1 sh -c "mongosh --port 27017 < /scripts/mongo-init.js"
 docker-compose exec mongo-shard1-svr1 sh -c "mongosh --port 27018 < /scripts/mongo-init.js"

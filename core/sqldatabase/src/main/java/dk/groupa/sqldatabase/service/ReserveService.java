@@ -36,6 +36,7 @@ public class ReserveService {
 
     public WaitingBorrow Push(Long userId, Long bookId) {
         BorrowQueue borrowQueue = reserveRepository.reserveBook(userId, bookId);
+        log.info("User {} has reserved book with ID {}", userId, bookId);
         return PushToPrioQue(bookId, borrowQueue);
     }
 

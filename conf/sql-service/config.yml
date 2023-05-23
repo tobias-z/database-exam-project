@@ -1,4 +1,2 @@
 depends_on:
   - mssql
-after-start: | 
-  docker run -e MSSQL_USERNAME=sa -e MSSQL_PASSWORD=thisIsSuperStrong1234 -e MSSQL_CONNECTION_STR="jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true" tobiaszimmer/data-importer:develop-0.0.1-SNAPSHOT-snapshot

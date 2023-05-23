@@ -20,7 +20,7 @@ services:
     environment:
       STORAGE_SERVER_URI: "0.0.0.0:7888"
       CONTAINER_BLACKLIST: "mongo"
-      MONGO_CONNECTION_STR: "mongodb://mongodb:27017"
+      MONGO_CONNECTION_STR: "mongodb://mongo-router-1:27017"
       AUTH_SERVER_URL: "auth-service:9090"
     logging: *default-logging
     networks:

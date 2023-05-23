@@ -1,0 +1,26 @@
+version: "3.9"
+
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+
+networks:
+  prod:
+    external: true
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: on-failure
+    ports:
+      - '6379:6379'
+    logging: *default-logging
+    networks:
+      - prod
+    healthcheck:
+      test: redis-cli ping | grep PONG
+      interval: 1s
+      timeout: 3s
+      retries: 5

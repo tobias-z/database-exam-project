@@ -11,19 +11,68 @@ networks:
     external: true
 
 services:
-  mongodb:
+  # config
+  mongo-config1:
+    container_name: "mongo-config1"
     image: mongo:6.0.5
-    ports:
-      - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=user
-      - MONGO_INITDB_ROOT_PASSWORD=pass
+    command: mongod --port 27017 --configsvr --replSet config-replicaset
     logging: *default-logging
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
+    volumes:
+      - "./config/configsvr/config.js:/scripts/mongo-init.js:ro"
     networks:
       - prod
+
+  # shard 1
+  mongo-shard1-svr1:
+    container_name: "mongo-shard1-svr1"
+    image: mongo:6.0.5
+    command: mongod --port 27018 --shardsvr --replSet shardsvr1
+    logging: *default-logging
+    volumes:
+      - "./config/shardsvr1/config.js:/scripts/mongo-init.js:ro"
+    networks:
+      - prod
+  mongo-shard1-svr2:
+    container_name: "mongo-shard1-svr2"
+    image: mongo:6.0.5
+    command: mongod --port 27018 --shardsvr --replSet shardsvr1
+    logging: *default-logging
+    networks:
+      - prod
+
+  # shard 2
+  mongo-shard2-svr1:
+    container_name: "mongo-shard2-svr1"
+    image: mongo:6.0.5
+    command: mongod --port 27019 --shardsvr --replSet shardsvr2
+    logging: *default-logging
+    volumes:
+      - "./config/shardsvr2/config.js:/scripts/mongo-init.js:ro"
+    networks:
+      - prod
+  mongo-shard2-svr2:
+    container_name: "mongo-shard2-svr2"
+    image: mongo:6.0.5
+    command: mongod --port 27019 --shardsvr --replSet shardsvr2
+    logging: *default-logging
+    networks:
+      - prod
+
+  # router
+  mongo-router-1:
+    container_name: "mongo-router-1"
+    image: mongo:6.0.5
+    command: mongos --port 27017 --configdb config-replicaset/mongo-config1:27017 --bind_ip_all
+    logging: *default-logging
+    ports:
+      - "27016:27017"
+    networks:
+      - prod
+    volumes:
+      - "./config/router/config.js:/scripts/mongo-init.js:ro"
+    depends_on:
+      - mongo-config1
+      - mongo-shard1-svr1
+      - mongo-shard1-svr2
+      - mongo-shard2-svr1
+      - mongo-shard2-svr2

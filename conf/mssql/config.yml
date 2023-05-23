@@ -1,0 +1,1 @@
+after-start: docker exec mssql sh /init-db.sh

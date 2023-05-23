@@ -1,0 +1,35 @@
+version: "3.9"
+
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+
+networks:
+  prod:
+    external: true
+
+services:
+  mssql:
+    container_name: "mssql"
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: on-failure
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: thisIsSuperStrong1234
+      SA_PASSWORD: thisIsSuperStrong1234
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./init-db.sh:/init-db.sh
+      - ./create-database.sql:/create-database.sql
+    logging: *default-logging
+    networks:
+      - prod
+    healthcheck:
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 10
+      test: '/opt/mssql-tools/bin/sqlcmd -U sa -P "thisIsSuperStrong1234" -Q "SELECT \"READY\"" | grep -q "READY"'

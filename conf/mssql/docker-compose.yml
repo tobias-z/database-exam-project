@@ -20,7 +20,7 @@ services:
       MSSQL_SA_PASSWORD: thisIsSuperStrong1234
       SA_PASSWORD: thisIsSuperStrong1234
     ports:
-      - "1433:1433"
+      - "1432:1433"
     volumes:
       - ./init-db.sh:/init-db.sh
       - ./create-database.sql:/create-database.sql

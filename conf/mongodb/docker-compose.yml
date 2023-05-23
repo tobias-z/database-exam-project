@@ -69,7 +69,7 @@ services:
     command: mongos --port 27017 --configdb config-replicaset/mongo-config1:27017 --bind_ip_all
     logging: *default-logging
     ports:
-      - "27017:27017"
+      - "27016:27017"
     networks:
       - prod
     volumes:

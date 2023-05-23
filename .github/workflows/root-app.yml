@@ -9,7 +9,7 @@ on:
       - conf/**
       - hack/start-app
       - hack/nginx-conf/**
-      - Dockerfile
+      - intel.Dockerfile
 
 name: Root App
 
@@ -37,19 +37,14 @@ jobs:
             image="$lower_case_image:$branch_name-$version-snapshot"
           fi
 
-          push_version() {
-            docker build -f $1.Dockerfile --tag "$image-$1" .
-          docker push "$image-$1"
+          docker build -f intel.Dockerfile --tag "$image" .
+          docker push "$image"
 
-            if [ "$branch_name" = "main" ]; then
-              # ensure that the image is also pushed as the latest image if this is the main branch
-              docker tag "$image-$1" "$lower_case_image:latest"
-              docker push "$lower_case_image:latest"
-            fi
-          }
-
-          push_version amd
-          push_version intel
+          if [ "$branch_name" = "main" ]; then
+            # ensure that the image is also pushed as the latest image if this is the main branch
+            docker tag "$image-$1" "$lower_case_image:latest"
+            docker push "$lower_case_image:latest"
+          fi
         env:
           DOCKER_USERNAME: tobiaszimmer
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

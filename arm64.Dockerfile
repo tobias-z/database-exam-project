@@ -1,4 +1,4 @@
-FROM rust:1.69.0-alpine3.17 as builder
+FROM arm64v8/rust:1.69.0-alpine3.17 as builder
 WORKDIR /build
 COPY hack/init-conf .
 RUN apk update && apk add --no-cache musl-dev

@@ -30,7 +30,7 @@ public class Book {
     private String language;
 
     @CsvBindByName(column = "Rating_score")
-    private Float rating_score;
+    private Double rating_score;
 
     @CsvBindByName(column = "Rating_votes")
     private Integer rating_votes;

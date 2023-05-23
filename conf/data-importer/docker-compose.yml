@@ -17,7 +17,7 @@ services:
     logging: *default-logging
     networks:
       - prod
-    enviorment:
+    environment:
       - MSSQL_USERNAME=sa
       - MSSQL_PASSWORD=thisIsSuperStrong1234
       - MSSQL_CONNECTION_STR="jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true"

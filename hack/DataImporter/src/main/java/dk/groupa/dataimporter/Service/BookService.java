@@ -21,6 +21,9 @@ public class BookService {
     @Autowired
     BookRepository bookRepository;
 
+    @Autowired
+    AuthorService authorService;
+
     @Value("${csv-location}")
     private String csvLocation;
 
@@ -28,6 +31,7 @@ public class BookService {
         List<Book> bookList = csvParser.fillBooksAndReturn(csvLocation);
 
         long startTime = System.currentTimeMillis();
+        authorService.saveAuthors(bookList);
         bookRepository.saveAll(bookList);
         long endTime = System.currentTimeMillis();
 

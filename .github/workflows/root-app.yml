@@ -37,14 +37,19 @@ jobs:
             image="$lower_case_image:$branch_name-$version-snapshot"
           fi
 
-          docker build --tag "$image" .
-          docker push "$image"
+          push_version() {
+            docker build -f $1.Dockerfile --tag "$image-$1" .
+          docker push "$image-$1"
 
-          if [ "$branch_name" = "main" ]; then
-            # ensure that the image is also pushed as the latest image if this is the main branch
-            docker tag "$image" "$lower_case_image:latest"
-            docker push "$lower_case_image:latest"
-          fi
+            if [ "$branch_name" = "main" ]; then
+              # ensure that the image is also pushed as the latest image if this is the main branch
+              docker tag "$image-$1" "$lower_case_image:latest"
+              docker push "$lower_case_image:latest"
+            fi
+          }
+
+          push_version amd
+          push_version intel
         env:
           DOCKER_USERNAME: tobiaszimmer
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}

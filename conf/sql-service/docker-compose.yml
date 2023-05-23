@@ -22,7 +22,7 @@ services:
       SQL_DATABASE_FLYWAY_PASSWORD: thisIsSuperStrong1234
       SQL_DATABASE_FLYWAY_URL: "jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true"
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/ping"]
+      test: curl --fail http://localhost:8080/ping
       interval: 5s
       timeout: 5s
       retries: 5

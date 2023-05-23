@@ -1,1 +1,2 @@
-CREATE DATABASE youbook;
+CREATE DATABASE youbook
+GO

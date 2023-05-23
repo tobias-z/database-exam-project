@@ -13,7 +13,7 @@ networks:
 services:
   auth-service:
     container_name: "auth-service"
-    image: tobiaszimmer/auth-service:develop-0.1.0-snapshot
+    image: tobiaszimmer/auth-service:develop-0.0.1-SNAPSHOT-snapshot
     restart: on-failure
     ports:
       - "9090:9090"

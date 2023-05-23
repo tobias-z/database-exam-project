@@ -18,7 +18,7 @@ export default function useLogServiceProxy<T>(
         `proxy-${key}`,
         async () => {
             const auth = btoa(`${username}:${password}`);
-            return fetch(`/api/proxy?path=${path}`, {
+            return fetch(`/logging-view/api/proxy?path=${path}`, {
                 headers: {
                     "Authorization": `Basic ${auth}`
                 }

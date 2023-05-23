@@ -1,4 +1,5 @@
 pub mod alert;
+pub mod auth;
 pub mod connection;
 pub mod gather;
 pub mod log_service;
@@ -6,7 +7,6 @@ pub mod model;
 pub mod monitor_service;
 pub mod query_lang;
 pub mod rest;
-pub mod auth;
 
 #[macro_use]
 extern crate log;

@@ -70,7 +70,13 @@ export default function Home() {
         isLoading,
         error,
         refetch: refetchLogQuery,
-    } = useLogServiceProxy<Log[]>("search", `/search?q=${fields.query}`, transformLogs);
+    } = useLogServiceProxy<Log[]>(
+        "search",
+        `/search?q=${fields.query}`,
+        fields.username,
+        fields.password,
+        transformLogs
+    );
 
     function handleExecuteQuery(event: FormEvent<HTMLFormElement>): void {
         event.preventDefault();
@@ -87,8 +93,6 @@ export default function Home() {
     function handleChange(event: React.ChangeEvent<HTMLInputElement>): void {
         handleFieldChange(event.target.name, event.target.value);
     }
-
-    console.log(logs);
 
     return (
         <main style={{ display: "flex", flexDirection: "column" }}>

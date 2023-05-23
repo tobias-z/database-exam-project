@@ -1,4 +1,5 @@
 pub mod alert;
+pub mod auth;
 pub mod connection;
 pub mod gather;
 pub mod log_service;

@@ -115,18 +115,15 @@ CREATE OR ALTER PROCEDURE [dbo].[sp_ReturnBook]
 
     AS
         BEGIN TRY
-        BEGIN TRANSACTION returnBook
-            BEGIN
-                DECLARE @loanId BIGINT;
+            BEGIN TRANSACTION returnBook
+                BEGIN
+                    WITH q AS (SELECT TOP 1 * FROM loans WHERE user_id = @user_id and book_id = @book_id and returned_at is null ORDER BY id ASC)
+                    UPDATE q SET returned_at = (SELECT GETDATE());
 
-                WITH q AS (SELECT TOP 1 * FROM loans WHERE user_id = @user_id and book_id = @book_id and returned_at is null ORDER BY id ASC)
-                UPDATE q SET returned_at = (SELECT GETDATE());
-
-                SET @loanId = SCOPE_IDENTITY();
-                UPDATE book SET available = available + 1 WHERE id = @book_id;
-                SELECT * FROM [loans] WHERE id = @loanId;
-            END
-        COMMIT TRANSACTION returnBook
+                    UPDATE book SET available = available + 1 WHERE id = @book_id;
+                    SELECT TOP 1 * FROM loans WHERE user_id = @user_id and book_id = @book_id and returned_at is NOT null ORDER BY id DESC;
+                END
+            COMMIT TRANSACTION returnBook
         END TRY
 
         BEGIN CATCH

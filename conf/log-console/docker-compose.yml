@@ -22,6 +22,7 @@ services:
       CONTAINER_BLACKLIST: "mongo"
       MONGO_CONNECTION_STR: "mongodb://mongo-router-1:27017"
       AUTH_SERVER_URL: "auth-service:9090"
+      RUST_LOG: debug
     logging: *default-logging
     networks:
       - prod
@@ -35,6 +36,7 @@ services:
     environment:
       STORAGE_SERVER_URI: "log-storage-server:7888"
       CONTAINERS_LOCATION: "/var/lib/docker/containers"
+      RUST_LOG: debug
     logging: *default-logging
     depends_on:
       - log-storage-server

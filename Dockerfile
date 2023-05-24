@@ -4,7 +4,7 @@ COPY hack/init-conf .
 RUN apk update && apk add --no-cache musl-dev
 RUN cargo build --release
 
-FROM arm64v8/docker:24-rc-dind
+FROM docker:24-rc-dind
 WORKDIR /app
 RUN apk update && apk add nginx nginx-mod-stream
 COPY hack/nginx-conf/nginx.conf /etc/nginx/nginx.conf

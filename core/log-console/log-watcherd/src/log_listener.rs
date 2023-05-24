@@ -60,7 +60,12 @@ impl LogListener {
     }
 
     #[async_recursion]
-    async fn modify(&mut self, container_id: String, path: &PathBuf, last_pos: Option<usize>) -> anyhow::Result<()> {
+    async fn modify(
+        &mut self,
+        container_id: String,
+        path: &PathBuf,
+        last_pos: Option<usize>,
+    ) -> anyhow::Result<()> {
         let config = self.get_config(&container_id)?;
         let position = self
             .active_log_files

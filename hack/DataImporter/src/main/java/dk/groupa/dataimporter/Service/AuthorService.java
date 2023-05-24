@@ -15,7 +15,7 @@ public class AuthorService {
     AuthorRepository authorRepository;
 
     private List<Author> mapToAuthor(List<Book> bookList) {
-        return bookList.stream().map(book -> book.getAuthor_name()).map(Author::new).toList();
+        return bookList.stream().map(book -> book.getAuthor_name()).distinct().map(Author::new).toList();
     }
 
     public void saveAuthors (List<Book> bookList) {

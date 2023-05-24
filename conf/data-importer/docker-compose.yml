@@ -20,4 +20,4 @@ services:
     environment:
       - MSSQL_USERNAME=sa
       - MSSQL_PASSWORD=thisIsSuperStrong1234
-      - MSSQL_CONNECTION_STR="jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true"
+      - MSSQL_CONNECTION_STR=jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true

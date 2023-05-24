@@ -1,0 +1,26 @@
+version: "3.9"
+
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+
+networks:
+  prod:
+    external: true
+
+services:
+  neo4j-service:
+    container_name: neo4j-service
+    image: tobiaszimmer/neo4jservice:develop-0.0.1-SNAPSHOT-snapshot
+    restart: on-failure
+    environment:
+      NEO4J_URI: bolt://neo4j
+      NEO4J_USERNAME: "neo4j"
+      NEO4J_PASSWORD: "neo4j"
+    ports:
+      - '8082:8081'
+    logging: *default-logging
+    networks:
+      - prod

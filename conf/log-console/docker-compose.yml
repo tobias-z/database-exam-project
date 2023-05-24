@@ -26,6 +26,11 @@ services:
     logging: *default-logging
     networks:
       - prod
+    healthcheck:
+      test: curl --fail http://localhost:8000/ping
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   log-watcherd:
     container_name: log-watcherd
@@ -39,7 +44,8 @@ services:
       RUST_LOG: debug
     logging: *default-logging
     depends_on:
-      - log-storage-server
+      log-storage-server:
+        condition: service_healthy
     networks:
       - prod
 
@@ -54,3 +60,6 @@ services:
     logging: *default-logging
     networks:
       - prod
+    depends_on:
+      log-storage-server:
+        condition: service_healthy

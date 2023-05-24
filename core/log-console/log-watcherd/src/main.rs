@@ -45,7 +45,7 @@ async fn get_client() -> LoggingStreamClient<Channel> {
 
 async fn listen(container_location: String, mut listener: Box<dyn FsListener>) {
     let (tx, rx) = crossbeam_channel::bounded(100);
-    let mut watcher = notify::RecommendedWatcher::new(tx, Config::default()).unwrap();
+    let mut watcher = notify::PollWatcher::new(tx, Config::default()).unwrap();
     watcher
         .watch(Path::new(&container_location), RecursiveMode::Recursive)
         .unwrap();

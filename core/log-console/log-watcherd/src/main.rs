@@ -18,7 +18,7 @@ pub mod proto {
 
 #[async_trait::async_trait]
 trait FsListener: Send {
-    async fn on_event(&mut self, event: Event);
+    async fn on_event(&mut self, event: Event) -> anyhow::Result<()>;
     fn on_error(&self, error: notify::Error);
 }
 
@@ -58,7 +58,9 @@ async fn listen(container_location: String, mut listener: Box<dyn FsListener>) {
                     // with concurrent processing. However this would prob be a good amount of
                     // work, because we cant simply just put a lock on the hashmap, we would need
                     // to make it a bit more elegant, possibly having a lock in each file?
-                    listener.on_event(event).await;
+                    if let Err(e) = listener.on_event(event).await {
+                        error!("{}", e);
+                    };
                 }
                 Err(err) => listener.on_error(err),
             }

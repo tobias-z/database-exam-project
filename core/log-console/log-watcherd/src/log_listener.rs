@@ -46,21 +46,22 @@ impl LogListener {
         }
     }
 
-    fn get_config(&self, container_id: &str) -> ConfigV2 {
-        let config = fs::read_to_string(format!(
+    fn get_config(&self, container_id: &str) -> anyhow::Result<ConfigV2> {
+        let Ok(config) = fs::read_to_string(format!(
             "{}/{}/config.v2.json",
             self.containers_location, container_id
-        ))
-        .unwrap();
+        )) else {
+            return Err(anyhow::anyhow!("{}/{}/config.v2.json was not found", self.containers_location, container_id));
+        };
         let mut config =
             serde_json::from_str::<ConfigV2>(&config).expect("name not found in the config file");
         config.name = config.name.replace(['\"', '/'], "");
-        config
+        Ok(config)
     }
 
     #[async_recursion]
-    async fn modify(&mut self, container_id: String, path: &PathBuf, last_pos: Option<usize>) {
-        let config = self.get_config(&container_id);
+    async fn modify(&mut self, container_id: String, path: &PathBuf, last_pos: Option<usize>) -> anyhow::Result<()> {
+        let config = self.get_config(&container_id)?;
         let position = self
             .active_log_files
             .entry(container_id.clone())
@@ -117,6 +118,7 @@ impl LogListener {
                 error!("Unable to send logs. Status code: {}", status);
             };
         }
+        Ok(())
     }
 }
 
@@ -133,19 +135,19 @@ impl FsListener for LogListener {
     /// When a container is removed, we remove it from our log files
     /// When a log file is edited, we find the newly inserted logs, and send them to the storage
     /// server.
-    async fn on_event(&mut self, event: notify::Event) {
+    async fn on_event(&mut self, event: notify::Event) -> anyhow::Result<()> {
         let Some(path) = event.paths.first() else {
-            return;
+            return Ok(());
         };
         let file_name = path.file_name().unwrap().to_str().unwrap();
         if !file_name.ends_with("-json.log") {
             // not a log file
-            return;
+            return Ok(());
         }
         let container_id = file_name.replace("-json.log", "").trim().to_string();
         match event.kind {
             EventKind::Create(_) => {
-                let config = self.get_config(&container_id);
+                let config = self.get_config(&container_id)?;
                 info!(
                     "New container started with id {} and name: {}",
                     container_id, config.name
@@ -163,6 +165,7 @@ impl FsListener for LogListener {
                 // ignoring the rest as we only care about creating deleting and updating
             }
         }
+        Ok(())
     }
 
     fn on_error(&self, error: notify::Error) {

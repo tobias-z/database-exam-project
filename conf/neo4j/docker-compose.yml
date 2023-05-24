@@ -13,7 +13,7 @@ networks:
 services:
   neo4j:
     container_name: neo4j
-    image: neo4j:5.0
+    image: neo4j:5
     restart: on-failure
     environment:
       NEO4J_AUTH: none

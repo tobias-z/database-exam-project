@@ -7,12 +7,14 @@ import dk.groupa.sqldatabase.entity.WaitingBorrow;
 import dk.groupa.sqldatabase.service.LoanService;
 import dk.groupa.sqldatabase.service.ReserveService;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/book")
+@Slf4j
 public class BookController {
     private final LoanService loanService;
     private final ReserveService reserveService;
@@ -28,6 +30,7 @@ public class BookController {
     public ResponseEntity<Loan> borrowBook(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         AuthDTO authDTO = authenticationService.isUserAuthenticatedWithRole(token, "free", "subscribed");
         if (!authDTO.isAuthenticated()) {
+            log.warn("Unauthorized user {}", token);
             return ResponseEntity.status(401).build();
         }
         return ResponseEntity.ok(loanService.BorrowBook(authDTO.getUser().get().getId(), bookId));
@@ -37,6 +40,7 @@ public class BookController {
     public ResponseEntity<Loan> returnBook(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         AuthDTO authDTO = authenticationService.isUserAuthenticatedWithRole(token, "free", "subscribed");
         if (!authDTO.isAuthenticated()) {
+            log.warn("Unauthorized user {}", token);
             return ResponseEntity.status(401).build();
         }
         return ResponseEntity.ok(loanService.ReturnBook(authDTO.getUser().get().getId(), bookId));
@@ -46,6 +50,7 @@ public class BookController {
     public ResponseEntity<WaitingBorrow> reserveBook(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         AuthDTO authDTO = authenticationService.isUserAuthenticatedWithRole(token, "free", "subscribed");
         if (!authDTO.isAuthenticated()) {
+            log.warn("Unauthorized user {}", token);
             return ResponseEntity.status(401).build();
         }
         return ResponseEntity.ok(reserveService.Push(authDTO.getUser().get().getId(), bookId));
@@ -55,6 +60,7 @@ public class BookController {
     public ResponseEntity<Integer> getNumberInQueue(@NotNull @PathVariable("bookId") Long bookId, @RequestHeader(HttpHeaders.AUTHORIZATION) String token) {
         AuthDTO authDTO = authenticationService.isUserAuthenticatedWithRole(token, "free", "subscribed");
         if (!authDTO.isAuthenticated()) {
+            log.warn("Unauthorized user {}", token);
             return ResponseEntity.status(401).build();
         }
         return ResponseEntity.ok(reserveService.NumberInQue(authDTO.getUser().get().getId(), bookId));

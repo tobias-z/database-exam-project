@@ -28,7 +28,7 @@ services:
       - prod
     healthcheck:
       test: curl --fail http://localhost:8000/ping
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
 

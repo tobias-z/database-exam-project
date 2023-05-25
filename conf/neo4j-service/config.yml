@@ -1,2 +1,2 @@
-depends_on:
+depends-on:
   - neo4j

@@ -1,3 +1,4 @@
 depends-on:
   - sql-service
-  - log-console
+  - neo4j
+

@@ -1,4 +1,3 @@
-depends_on:
+depends-on:
   - sql-service
   - neo4j
-

@@ -5,12 +5,14 @@ import dk.groupa.datatransfomer.Model.MSSQL.BookMS;
 import dk.groupa.datatransfomer.Repository.MSSQL.BookRepositoryMS;
 import dk.groupa.datatransfomer.Repository.Neo4J.BookRepositoryNeo4j;
 import dk.groupa.datatransfomer.utils.Neo4jParser;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class BookService {
     @Autowired
     BookRepositoryMS bookRepositoryMS;

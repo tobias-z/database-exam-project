@@ -6,12 +6,14 @@ import dk.groupa.datatransfomer.Model.Neo4J.User;
 import dk.groupa.datatransfomer.Repository.MSSQL.UserRepositoryMS;
 import dk.groupa.datatransfomer.Repository.Neo4J.UserRepositoryNeo4j;
 import dk.groupa.datatransfomer.utils.Neo4jParser;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class UserService {
     @Autowired
     UserRepositoryMS userRepositoryMS;

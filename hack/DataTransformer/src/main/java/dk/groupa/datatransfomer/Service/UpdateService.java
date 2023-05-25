@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import dk.groupa.datatransfomer.Model.MSSQL.AuthorMS;
 import dk.groupa.datatransfomer.Model.MSSQL.BookMS;
 import dk.groupa.datatransfomer.Repository.MSSQL.BookRepositoryMS;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class UpdateService {
     @Autowired
     BookRepositoryMS bookRepositoryMS;

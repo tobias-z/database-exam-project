@@ -1,4 +1,4 @@
 depends_on:
-  - mssql
+  - sql-service
   - neo4j
 

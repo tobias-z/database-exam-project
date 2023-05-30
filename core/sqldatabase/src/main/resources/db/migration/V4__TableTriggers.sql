@@ -18,6 +18,8 @@ BEGIN
     WHERE book.id IN (SELECT DISTINCT id FROM inserted)
 end
 
+GO
+
 -- Add the author_update_trigger. This will update the last_updated column when one of the other information fields changes.
 CREATE TRIGGER author_update_trigger ON author
     AFTER INSERT, UPDATE

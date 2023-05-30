@@ -65,7 +65,7 @@ impl LogListener {
         container_id: String,
         path: &PathBuf,
         last_pos: Option<usize>,
-        waited_for: usize
+        waited_for: usize,
     ) -> anyhow::Result<()> {
         let config = self.get_config(&container_id)?;
         let position = self
@@ -112,7 +112,9 @@ impl LogListener {
                 if multiline::is_multiline(&log.message) && waited_for > 5 {
                     // wait for the rest of the multilined log to come in
                     std::thread::sleep(Duration::from_secs(3));
-                    return self.modify(container_id, path, Some(last_log_pos), waited_for + 1).await;
+                    return self
+                        .modify(container_id, path, Some(last_log_pos), waited_for + 1)
+                        .await;
                 }
             }
 

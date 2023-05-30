@@ -1,5 +1,12 @@
 # Database Exam Project
 
+## Group Members
+
+- Mads Bryde, cph-mb870@cphbusiness.dk
+- Mathias Egebjerg Jensen, cph-mj839@cphbusiness.dk
+- Malthe Stefan Woschek, cph-mw202@cphbusiness.dk
+- Tobias Zimmermann, cph-tz11@cphbusiness.dk
+
 ## Table of Contents
 
 - [Introduction](#introduction)

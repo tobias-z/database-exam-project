@@ -59,6 +59,7 @@ fn main() {
             }
         };
     }
+    println!("Completed all configs");
 }
 
 struct ConfigProcess {

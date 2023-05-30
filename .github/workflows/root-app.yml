@@ -42,7 +42,7 @@ jobs:
 
           if [ "$branch_name" = "main" ]; then
             # ensure that the image is also pushed as the latest image if this is the main branch
-            docker tag "$image-$1" "$lower_case_image:latest"
+            docker tag "$image" "$lower_case_image:latest"
             docker push "$lower_case_image:latest"
           fi
         env:

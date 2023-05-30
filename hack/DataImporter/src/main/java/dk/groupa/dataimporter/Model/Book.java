@@ -2,6 +2,7 @@ package dk.groupa.dataimporter.Model;
 
 import com.opencsv.bean.CsvBindByName;
 import jakarta.persistence.*;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,6 +43,23 @@ public class Book {
     private Integer year_published;
 
     private Integer available = 5;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Book book = (Book) o;
+        return title.equals(book.title) && author_name.equals(book.author_name) && year_published.equals(book.year_published);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, author_name, year_published);
+    }
 
     // This custom setter is made in order to get rid of any new lines that might be in the description to easier pass it on to the database.
     public void setDescription(String description) {

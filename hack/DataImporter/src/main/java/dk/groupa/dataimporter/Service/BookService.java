@@ -4,6 +4,7 @@ import dk.groupa.dataimporter.Model.Book;
 import dk.groupa.dataimporter.Repository.BookRepository;
 import dk.groupa.dataimporter.utils.CloseApplication;
 import dk.groupa.dataimporter.utils.CsvParser;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class BookService {
     private String csvLocation;
 
     public void parseCsvFiles() {
-        List<Book> bookList = csvParser.fillBooksAndReturn(csvLocation);
+        Set<Book> bookList = csvParser.fillBooksAndReturn(csvLocation);
 
         long startTime = System.currentTimeMillis();
         authorService.saveAuthors(bookList);

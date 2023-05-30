@@ -2,6 +2,8 @@ package dk.groupa.dataimporter.utils;
 
 import com.opencsv.bean.CsvToBeanBuilder;
 import dk.groupa.dataimporter.Model.Book;
+import java.util.HashSet;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,8 +48,8 @@ public class CsvParser {
         return result;
     }
 
-    private List<Book> parseCsvToObject (List<Path> csvFiles) {
-        List<Book> bookList = new ArrayList<>();
+    private Set<Book> parseCsvToObject (List<Path> csvFiles) {
+        Set<Book> books = new HashSet<>();
 
         try {
             // if the list is empty that must mean there are no CSV files present to parse.
@@ -57,20 +59,19 @@ public class CsvParser {
             }
 
             for(Path csvFile : csvFiles) {
-                bookList.addAll(new CsvToBeanBuilder(new FileReader(csvFile.toFile())).withType(Book.class).build().parse());
+                books.addAll(new CsvToBeanBuilder(new FileReader(csvFile.toFile())).withType(Book.class).build().parse());
             }
 
-            return bookList;
+            return books;
         } catch (IOException e) {
             System.out.println(e);
             closeApplication.error("parseCsvToObject", "There was an IOException error.");
         }
-        return bookList;
+        return books;
     }
 
-    public List<Book> fillBooksAndReturn(String pathToCsvFile) {
+    public Set<Book> fillBooksAndReturn(String pathToCsvFile) {
         List<Path> csvPaths;
-        List<Book> bookList = new ArrayList<>();
 
         csvPaths = findAllCsvFilesInPath(pathToCsvFile);
 
@@ -79,7 +80,7 @@ public class CsvParser {
             closeApplication.error("fillBooksAndReturn", "csvPaths array size is apparently 0.");
         }
 
-        bookList = parseCsvToObject(csvPaths);
+        Set<Book> bookList = parseCsvToObject(csvPaths);
 
         // Don't need to go any further trying to parse anything size we did not find any csv files in the specific location.
         if(bookList.size() == 0) {

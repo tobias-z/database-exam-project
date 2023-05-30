@@ -41,7 +41,7 @@ public class Book {
     @CsvBindByName(column = "Year_published")
     private Integer year_published;
 
-    private Integer available = 1;
+    private Integer available = 5;
 
     // This custom setter is made in order to get rid of any new lines that might be in the description to easier pass it on to the database.
     public void setDescription(String description) {

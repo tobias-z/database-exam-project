@@ -13,7 +13,7 @@ networks:
 services:
   neo4j-service:
     container_name: neo4j-service
-    image: tobiaszimmer/neo4jservice:develop-0.0.1-SNAPSHOT-snapshot
+    image: tobiaszimmer/neo4jservice:main-0.0.1-SNAPSHOT
     restart: on-failure
     environment:
       NEO4J_URI: bolt://neo4j

@@ -12,7 +12,7 @@ networks:
 
 services:
   sql-service:
-    image: tobiaszimmer/sql-service:develop-0.0.1-SNAPSHOT-snapshot
+    image: tobiaszimmer/sql-service:main-0.0.1-SNAPSHOT
     restart: on-failure
     environment:
       MSSQL_USERNAME: sa

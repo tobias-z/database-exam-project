@@ -13,7 +13,7 @@ networks:
 services:
   log-storage-server:
     container_name: log-storage-server
-    image: tobiaszimmer/log-storage-server:develop-0.1.0-snapshot
+    image: tobiaszimmer/log-storage-server:main-0.1.0
     restart: on-failure
     ports:
       - "8000:8000"
@@ -34,7 +34,7 @@ services:
 
   log-watcherd:
     container_name: log-watcherd
-    image: tobiaszimmer/log-watcherd:develop-0.1.0-snapshot
+    image: tobiaszimmer/log-watcherd:main-0.1.0
     restart: on-failure
     volumes:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
@@ -51,7 +51,7 @@ services:
 
   logging-view:
     container_name: logging-view
-    image: tobiaszimmer/logging-view:develop-0.1.0-snapshot
+    image: tobiaszimmer/logging-view:main-0.1.0
     restart: on-failure
     ports:
       - "3000:3000"

@@ -15,6 +15,7 @@ services:
     container_name: "mssql"
     image: mcr.microsoft.com/mssql/server:2022-latest
     restart: on-failure
+    user: root
     environment:
       ACCEPT_EULA: Y
       MSSQL_SA_PASSWORD: thisIsSuperStrong1234

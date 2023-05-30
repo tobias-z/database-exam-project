@@ -19,6 +19,9 @@ services:
       NEO4J_URI: bolt://neo4j
       NEO4J_USERNAME: "neo4j"
       NEO4J_PASSWORD: "neo4j"
+      MSSQL_USERNAME: sa
+      MSSQL_PASSWORD: thisIsSuperStrong1234
+      MSSQL_CONNECTION_STR: "jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true"
     ports:
       - '8082:8081'
     logging: *default-logging

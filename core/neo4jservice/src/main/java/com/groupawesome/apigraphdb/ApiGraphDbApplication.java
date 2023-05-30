@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @ComponentScan({
-		"dk.groupa"
+		"dk.groupa",
+		"com.groupawesome"
 })
 
 @SpringBootApplication

@@ -1,0 +1,26 @@
+version: "3.9"
+
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+
+networks:
+  prod:
+    external: true
+
+services:
+  data-importer:
+    image: tobiaszimmer/data-transformer:develop-0.0.1-SNAPSHOT-snapshot
+    restart: on-failure
+    logging: *default-logging
+    networks:
+      - prod
+    environment:
+      MSSQL_USERNAME: sa
+      MSSQL_PASSWORD: thisIsSuperStrong1234
+      MSSQL_CONNECTION_STR: jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true
+      NEO4J_URI: bolt://neo4j
+      NEO4J_USERNAME: "neo4j"
+      NEO4J_PASSWORD: "neo4j"

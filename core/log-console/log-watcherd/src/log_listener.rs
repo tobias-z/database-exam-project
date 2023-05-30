@@ -65,6 +65,7 @@ impl LogListener {
         container_id: String,
         path: &PathBuf,
         last_pos: Option<usize>,
+        waited_for: usize
     ) -> anyhow::Result<()> {
         let config = self.get_config(&container_id)?;
         let position = self
@@ -108,10 +109,10 @@ impl LogListener {
             //     was previously used, so that we don't skip to the end of the log file again.
             let last_log_pos = logs.len() - 2;
             if let Some(log) = &logs.get(last_pos.unwrap_or(last_log_pos)) {
-                if multiline::is_multiline(&log.message) {
+                if multiline::is_multiline(&log.message) && waited_for > 5 {
                     // wait for the rest of the multilined log to come in
                     std::thread::sleep(Duration::from_secs(3));
-                    return self.modify(container_id, path, Some(last_log_pos)).await;
+                    return self.modify(container_id, path, Some(last_log_pos), waited_for + 1).await;
                 }
             }
 
@@ -160,7 +161,7 @@ impl FsListener for LogListener {
                 self.active_log_files.insert(container_id, 0);
             }
             EventKind::Modify(_) => {
-                self.modify(container_id, path, None).await;
+                self.modify(container_id, path, None, 0).await;
             }
             EventKind::Remove(_) => {
                 info!("Container with id {} removed", container_id);

@@ -9,10 +9,14 @@ inputs:
     description: A comma seperated list of libraries this project requires
     required: false
     default: ""
-  run_docker_compose:
-    description: Whether to run docker composes before building and testing
+  compose_files:
+    description: A comma seperated list of docker compose files that should be run, relative to the working directory
     required: false
-    default: no
+    default: ""
+  run_tests:
+    description: Whether to run all tests
+    default: "yes"
+    required: false
   java_version:
     description: The java version used
     required: false
@@ -29,10 +33,12 @@ runs:
   steps:
     - name: Setup environment
       working-directory: ${{ inputs.working_directory }}
-      if: ${{ inputs.run_docker_compose == 'yes' }}
+      if: ${{ inputs.compose_files != '' }}
       shell: bash
+      env:
+        COMPOSE_FILES: ${{ inputs.compose_files }}
       run: |
-        docker compose up -d
+        docker compose $(sh hack/compose-list $COMPOSE_FILES) up -d
         # Ensure that containers are ready
         # In practice of a real production app, we would prob want to have a list of things that we should wait for, and then check if all those services are healthy
         sleep 10
@@ -40,7 +46,7 @@ runs:
     - name: Setup Java
       uses: ./.github/actions/setup-java
       with:
-        java_version: ${{ java_version }}
+        java_version: ${{ inputs.java_version }}
 
     - name: Install libs
       working-directory: lib
@@ -49,23 +55,41 @@ runs:
       env:
         REQUIRES: ${{ inputs.requires }}
       run: |
+        echo "Installing required libraries"
         # any directory in the directory and sub directories that contain a pom.xml, is something that could be a library
         java_libs=$(find . -type f -name 'pom.xml' | sed -r 's|/[^/]+$||' | uniq | sed 's/.\///')
         for path_to_lib in $java_libs; do
           lib_name=$(basename $path_to_lib)
+          echo "Found library $lib_name in $path_to_lib"
           # the library name is in the REQUIRES string
-          if [[ "$lib_name" == *"$REQUIRES"* ]]; then
-            cd $path_to_lib
-            # install the library and ignore test compilation and failure
-            mvn install -Dmaven.test.skip=true
-            cd -
-          fi
+          case "$REQUIRES" in
+            *$lib_name*)
+              echo "Installing lib $lib_name as it is required"
+              cd $path_to_lib
+              # install the library and ignore test compilation and failure
+              mvn install -Dmaven.test.skip=true
+              cd -
+              ;;
+          esac
         done
 
     - name: Run tests
       working-directory: ${{ inputs.working_directory }}
+      if: ${{ inputs.run_tests == 'yes' }}
       shell: bash
       run: mvn verify
+
+    - name: Package
+      working-directory: ${{ inputs.working_directory }}
+      env:
+        RUN_TESTS: ${{ inputs.run_tests }}
+      shell: bash
+      run: |
+        arguments=""
+        if [ "$RUN_TESTS" = "no" ]; then
+          arguments="-Dmaven.test.skip=true"
+        fi
+        mvn package $arguments
 
     - name: Deploy to dockerhub
       shell: bash
@@ -76,8 +100,8 @@ runs:
         echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
 
         version=$(. $GITHUB_WORKSPACE/hack/xpath-value "pom.xml" 'project/version')
+        name=$(. $GITHUB_WORKSPACE/hack/xpath-value "pom.xml" 'project/name')
         for file in *.Dockerfile; do
-          echo $file
           lower_case_image="$DOCKER_USERNAME/$(echo "$file" | sed 's/.Dockerfile//' | awk '{print tolower($0)}')"
           branch_name=$(echo $GITHUB_REF | cut -d'/' -f 3 | tr / -)
           if [ "$branch_name" = "main" ]; then
@@ -86,7 +110,7 @@ runs:
             image="$lower_case_image:$branch_name-$version-snapshot"
           fi
 
-          docker build --tag "$image" -f "$file" .
+          docker build --build-arg jar_file="target/$name-$version.jar" --tag "$image" -f "$file" .
           docker push "$image"
         done
       env:

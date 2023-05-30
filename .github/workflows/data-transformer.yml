@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - hack/DataTransformer/**
+      - .github/workflows/data-transformer.yml
+  pull_request:
+
+name: Data Transformer Pipeline
+
+permissions:
+  contents: read
+
+jobs:
+  data-importer-pipeline:
+    name: Test and Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Run java pipeline
+        uses: ./.github/actions/java-pipeline
+        with:
+          working_directory: hack/DataTransformer
+          run_tests: no
+          java_version: "17"
+          docker_password: ${{ secrets.DOCKER_PASSWORD }}
+          docker_username: tobiaszimmer

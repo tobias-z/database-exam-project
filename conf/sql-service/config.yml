@@ -1,0 +1,3 @@
+depends-on:
+  - mssql
+  - log-console

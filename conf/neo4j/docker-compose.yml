@@ -1,0 +1,32 @@
+version: "3.9"
+
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+
+networks:
+  prod:
+    external: true
+
+services:
+  neo4j:
+    container_name: neo4j
+    image: neo4j:5
+    restart: on-failure
+    environment:
+      NEO4J_AUTH: none
+      NEO4J_PLUGINS: '["graph-data-science"]'
+    healthcheck:
+      test: wget http://localhost:7474/ || exit 1
+      interval: 1s
+      timeout: 10s
+      retries: 20
+      start_period: 3s
+    ports:
+      - '7473:7474'
+      - '7686:7687'
+    logging: *default-logging
+    networks:
+      - prod

@@ -1,0 +1,33 @@
+version: "3.9"
+
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+
+networks:
+  prod:
+    external: true
+
+services:
+  sql-service:
+    image: tobiaszimmer/sql-service:develop-0.0.1-SNAPSHOT-snapshot
+    restart: on-failure
+    environment:
+      MSSQL_USERNAME: sa
+      MSSQL_PASSWORD: thisIsSuperStrong1234
+      MSSQL_CONNECTION_STR: "jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true"
+      SQL_DATABASE_FLYWAY_USERNAME: sa
+      SQL_DATABASE_FLYWAY_PASSWORD: thisIsSuperStrong1234
+      SQL_DATABASE_FLYWAY_URL: "jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true"
+    healthcheck:
+      test: curl --fail http://localhost:8080/ping
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '8081:8080'
+    logging: *default-logging
+    networks:
+      - prod

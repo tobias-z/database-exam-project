@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install \
 RUN cargo build --release --bin log-storage-server
 
 FROM debian:11-slim
-RUN apt-get update && apt install libssl1.1 -y
+RUN apt-get update && apt install libssl1.1 curl -y
 COPY --from=builder /build/target/release/log-storage-server /usr/local/bin/log-storage-server
 # If we don't do this we will not be able to connect to the server from other places than inside the container
 ENV ROCKET_ADDRESS=0.0.0.0

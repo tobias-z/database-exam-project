@@ -1,0 +1,579 @@
+{
+	"info": {
+		"_postman_id": "bfe930b6-2d8f-4401-8f50-21e60569d222",
+		"name": "YouBook",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18056280"
+	},
+	"item": [
+		{
+			"name": "log-api",
+			"item": [
+				{
+					"name": "Ping",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost/log-api/ping",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"log-api",
+								"ping"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "cph-tz11@cphbusiness.dk",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "thisIsSuperStrong1234",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/log-api/search?q=log_level INFO",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"log-api",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "log_level INFO"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Monitor Query",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "cph-tz11@cphbusiness.dk",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "thisIsSuperStrong1234",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": \"log_level ERROR | offset 1m\",\n    \"interval\": \"1m\",\n    \"send_to_roles\": [\"employee\"]\n}"
+						},
+						"url": {
+							"raw": "http://localhost/log-api/monitor-query",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"log-api",
+								"monitor-query"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Monitor Queries",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "cph-tz11@cphbusiness.dk",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "thisIsSuperStrong1234",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost/log-api/monitor-query",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"log-api",
+								"monitor-query"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Monitor Query",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "cph-tz11@cphbusiness.dk",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "thisIsSuperStrong1234",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost/log-api/monitor-query/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"log-api",
+								"monitor-query",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "sql-service",
+			"item": [
+				{
+					"name": "Borrow Book",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "cph-mb870@cphbusiness.dk",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "thisIsSuperStrong1234",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost/sql-service/book/1/borrow",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"sql-service",
+								"book",
+								"1",
+								"borrow"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Return Book",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "cph-mb870@cphbusiness.dk",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "thisIsSuperStrong1234",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost/sql-service/book/1/return",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"sql-service",
+								"book",
+								"1",
+								"return"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reserve Book",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "cph-mb870@cphbusiness.dk",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "thisIsSuperStrong1234",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost/sql-service/book/1/reserve",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"sql-service",
+								"book",
+								"1",
+								"reserve"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Number In Queue",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "cph-mb870@cphbusiness.dk",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "thisIsSuperStrong1234",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost/sql-service/book/1/number",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"sql-service",
+								"book",
+								"1",
+								"number"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "neo4j-service",
+			"item": [
+				{
+					"name": "Get all Authors",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/neo4j-service/author",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"neo4j-service",
+								"author"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Author",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/neo4j-service/author/Naomi Novik",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"neo4j-service",
+								"author",
+								"Naomi Novik"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Books",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/neo4j-service/book",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"neo4j-service",
+								"book"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Top Books",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/neo4j-service/book/topbooks/10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"neo4j-service",
+								"book",
+								"topbooks",
+								"10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost/neo4j-service/user",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"path": [
+								"neo4j-service",
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

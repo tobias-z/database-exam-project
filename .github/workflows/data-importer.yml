@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - hack/DataImporter/**
+      - .github/workflows/data-importer.yml
+  pull_request:
+
+name: Data Importer Pipeline
+
+permissions:
+  contents: read
+
+jobs:
+  data-importer-pipeline:
+    name: Test and Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
+
+      - name: Run java pipeline
+        uses: ./.github/actions/java-pipeline
+        with:
+          working_directory: hack/DataImporter
+          run_tests: no
+          java_version: "17"
+          docker_password: ${{ secrets.DOCKER_PASSWORD }}
+          docker_username: tobiaszimmer

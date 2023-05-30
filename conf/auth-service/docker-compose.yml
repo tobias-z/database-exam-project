@@ -1,0 +1,28 @@
+version: "3.9"
+
+x-logging:
+  &default-logging
+  driver: json-file
+  options:
+    max-size: 10m
+
+networks:
+  prod:
+    external: true
+
+services:
+  auth-service:
+    container_name: "auth-service"
+    image: tobiaszimmer/auth-service:develop-0.0.1-SNAPSHOT-snapshot
+    restart: on-failure
+    ports:
+      - "9090:9090"
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MSSQL_USERNAME: sa
+      MSSQL_PASSWORD: thisIsSuperStrong1234
+      MSSQL_CONNECTION_STR: "jdbc:sqlserver://mssql:1433;databaseName=youbook;trustServerCertificate=true"
+    logging: *default-logging
+    networks:
+      - prod

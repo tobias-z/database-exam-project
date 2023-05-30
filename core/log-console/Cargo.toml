@@ -1,31 +1,12 @@
-[package]
-name = "log-console"
 version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
 members = [
-    "core/fs-watcher",
-    "core/storage"
+    "log-watcherd",
+    "log-storage-server"
 ]
 
 [workspace.dependencies]
 log = "0.4.17"
 env_logger = "0.10.0"
-
-[dependencies]
-log = {workspace = true}
-env_logger = {workspace = true}
-fs-watcher = {path = "./core/fs-watcher"}
-storage = {path = "./core/storage"}
 dotenv = "0.15.0"
-
-[[bin]]
-name = "log-watcherd"
-path = "src/log-watcherd/main.rs"
-
-[[bin]]
-name = "log-storage-server"
-path = "src/log-storage-server/main.rs"

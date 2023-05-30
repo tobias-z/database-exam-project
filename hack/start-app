@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+
+# start docker daemon
+dockerd-entrypoint.sh &
+
+# wait for docker daemon to be ready
+until docker ps > /dev/null 2>&1; do
+    sleep 1
+done
+
+# ensure the prod volume
+prod=$(docker network ls)
+if [[ "$prod" != *"prod"* ]]; then
+    docker network create prod
+fi
+
+exit_on_error() {
+    exit_code=$1
+    last_command=${@:2}
+    if [ $exit_code -ne 0 ]; then
+        >&2 echo "\"${last_command}\" command failed with exit code ${exit_code}."
+        exit $exit_code
+    fi
+}
+
+# start all apps using the configuration files
+/app/init-conf
+
+exit_on_error $? !!
+
+nginx -g "daemon off;"

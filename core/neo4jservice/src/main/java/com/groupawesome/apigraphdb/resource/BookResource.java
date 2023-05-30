@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/api/neo4j/book")
+@RequestMapping("/book")
 public class BookResource {
 
     @Autowired

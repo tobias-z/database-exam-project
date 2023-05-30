@@ -99,7 +99,7 @@ Available users:
 
 ### Postman
 
-To ease the process of executing a process, a postman collection has been made, and can be found [here](./documents/postman/youbook.postman_collection.json)
+To ease the process of executing a process, a postman collection has been made, and can be found [here](./documents/YouBook.postman_collection.json)
 
 ## Problem Definition
 

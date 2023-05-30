@@ -5,7 +5,7 @@ CREATE TABLE [dbo].[author](
 GO
 SET ANSI_PADDING ON
 GO
-ALTER TABLE [dbo].[author] ADD  CONSTRAINT [PK_author] PRIMARY KEY CLUSTERED 
+ALTER TABLE [dbo].[author] ADD  CONSTRAINT [PK_author] PRIMARY KEY CLUSTERED
 (
 	[name] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -18,14 +18,14 @@ CREATE TABLE [dbo].[book](
 	[description] [text] NULL,
 	[author_name] [varchar](255) NOT NULL,
 	[language] [varchar](100) NOT NULL,
-	[rating_score] [decimal](2, 0) NULL,
+	[rating_score] [decimal](3, 2) NULL,
 	[rating_votes] [bigint] NOT NULL,
 	[review_number] [bigint] NOT NULL,
 	[year_published] [int] NOT NULL,
 	[available] [int] NOT NULL
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[book] ADD  CONSTRAINT [PK_book] PRIMARY KEY CLUSTERED 
+ALTER TABLE [dbo].[book] ADD  CONSTRAINT [PK_book] PRIMARY KEY CLUSTERED
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -61,7 +61,7 @@ CREATE TABLE [dbo].[book_genre](
 	[voted_for] [int] NULL
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[book_genre] ADD  CONSTRAINT [PK_book_genre] PRIMARY KEY CLUSTERED 
+ALTER TABLE [dbo].[book_genre] ADD  CONSTRAINT [PK_book_genre] PRIMARY KEY CLUSTERED
 (
 	[book_id] ASC,
 	[genre_id] ASC
@@ -135,7 +135,7 @@ CREATE TABLE [dbo].[loans](
 	[returned_at] [date] NULL
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[loans] ADD  CONSTRAINT [PK_Loans] PRIMARY KEY CLUSTERED 
+ALTER TABLE [dbo].[loans] ADD  CONSTRAINT [PK_Loans] PRIMARY KEY CLUSTERED
 (
 	[id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]

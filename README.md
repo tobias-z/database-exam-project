@@ -141,10 +141,18 @@ The recommendations will be based of:
 - **Other popular books that users have also borrowed**, after having borrowed the same book a user has borrowed.
 - **New books written by the same author** of the books a user has previously borrowed.
 
+#### Graph diagram
+
+![Graph Diagram](./documents/images/youbook-graph.png)
+
 ### Document Database
 
 The document database MongoDB was selected to hold all application logs, as it includes great features creating dynamic queries for searching and filtering.
 It also includes ways for decreasing response times for an ever-growing logging system.
+
+#### Collections
+
+![Collections](./documents/images/mongodb.png)
 
 ### Key-Value Database
 
@@ -155,3 +163,17 @@ This will be done through the TTL (time-to-live) feature of Redis.
 
 - Data will be transitioned from multiple log files, and transformed into a MongoDB model used for log querying and storage.
 - Data will be transitioned from the MSSQL database into Neo4j taking only the data required to run the algorithms used to generate the recommendations mentioned under the Graph Database section.
+
+## Diagrams
+
+### Architecture
+
+![Architecture](./documents/images/youbook-architecture.png)
+
+### Application launcher
+
+![Architecture](./documents/images/start-apps.png)
+
+### Book priority queue
+
+![Architecture](./documents/images/book-priority-queue.png)

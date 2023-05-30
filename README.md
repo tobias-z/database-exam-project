@@ -6,7 +6,18 @@
 - [Usage](#usage)
   - [Container Interaction](#container-interaction)
   - [Application Interaction](#application-interaction)
+  - [Auth](#auth)
   - [Postman](#postman)
+- [Problem Definition](#problem-definition)
+  - [Non-Functional](#non-functional)
+  - [Functional](#functional)
+- [Database Models](#database-models)
+  - [Relational Database](#relational-database)
+  - [Graph Database](#graph-database)
+  - [Document Database](#document-database)
+  - [Key-Value Database](#key-value-database)
+- [Data Transformation](#data-transformation)
+- [Diagrams](#diagrams)
 
 ## Introduction
 
@@ -159,7 +170,7 @@ It also includes ways for decreasing response times for an ever-growing logging 
 The key-value database Redis has been chosen as fast in memory caching. It will be used to keep values that are not required to be in the correct state in memory.
 This will be done through the TTL (time-to-live) feature of Redis.
 
-### Data transformation
+## Data transformation
 
 - Data will be transitioned from multiple log files, and transformed into a MongoDB model used for log querying and storage.
 - Data will be transitioned from the MSSQL database into Neo4j taking only the data required to run the algorithms used to generate the recommendations mentioned under the Graph Database section.

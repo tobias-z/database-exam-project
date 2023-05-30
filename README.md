@@ -21,7 +21,8 @@
 
 ## Introduction
 
-Something
+This project is a system for online book borrowing. It was developed for the Database subject at Cphbusiness in Denmark.
+The application allows users to borrow books, be put in a borrow queue, get book recommendations, check system logs, and more.
 
 ## Usage
 

@@ -15,7 +15,7 @@ services:
     image: redis:7-alpine
     restart: on-failure
     ports:
-      - '6379:6379'
+      - '6378:6379'
     logging: *default-logging
     networks:
       - prod

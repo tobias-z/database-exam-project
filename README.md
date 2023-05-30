@@ -63,7 +63,7 @@ docker exec -it youbook sh
 Everything is exposed through a nginx proxy.
 
 Applications are available through: `localhost/<service>/<uri-inside-service>`
-Databases are available through: `localhost:{27017,7474,1433}` for either MongoDB, Neo4j or MSSQL
+Databases are available through: `localhost:{27017,7474,1433,6379}` for either MongoDB, Neo4j, MSSQL or Redis
 
 List of available services:
 

@@ -14,6 +14,7 @@ services:
   # config
   mongo-config1:
     container_name: "mongo-config1"
+    restart: on-failure
     image: mongo:6.0.5
     command: mongod --port 27017 --configsvr --replSet config-replicaset
     logging: *default-logging
@@ -25,6 +26,7 @@ services:
   # shard 1
   mongo-shard1-svr1:
     container_name: "mongo-shard1-svr1"
+    restart: on-failure
     image: mongo:6.0.5
     command: mongod --port 27018 --shardsvr --replSet shardsvr1
     logging: *default-logging
@@ -34,6 +36,7 @@ services:
       - prod
   mongo-shard1-svr2:
     container_name: "mongo-shard1-svr2"
+    restart: on-failure
     image: mongo:6.0.5
     command: mongod --port 27018 --shardsvr --replSet shardsvr1
     logging: *default-logging
@@ -43,6 +46,7 @@ services:
   # shard 2
   mongo-shard2-svr1:
     container_name: "mongo-shard2-svr1"
+    restart: on-failure
     image: mongo:6.0.5
     command: mongod --port 27019 --shardsvr --replSet shardsvr2
     logging: *default-logging
@@ -52,6 +56,7 @@ services:
       - prod
   mongo-shard2-svr2:
     container_name: "mongo-shard2-svr2"
+    restart: on-failure
     image: mongo:6.0.5
     command: mongod --port 27019 --shardsvr --replSet shardsvr2
     logging: *default-logging
@@ -61,6 +66,7 @@ services:
   # router
   mongo-router-1:
     container_name: "mongo-router-1"
+    restart: on-failure
     image: mongo:6.0.5
     command: mongos --port 27017 --configdb config-replicaset/mongo-config1:27017 --bind_ip_all
     logging: *default-logging

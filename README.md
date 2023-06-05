@@ -149,6 +149,10 @@ Employee requirements:
 
 The relational database MSSQL was chosen, as it includes a lot of features that make creating stored procedures and other features that can make the performance of our queries faster.
 
+#### ER Diagram
+
+![ER Diagram](./documents/images/er-diagram.png)
+
 ### Graph Database
 
 The graph database Neo4j was selected as it allows us to run a multitude of different operations that would help us with recommendations on books and authors.
